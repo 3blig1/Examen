@@ -15,6 +15,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+        $bankInfo = config('app.bank') ?? [];
 
         // Get user's registrations
         $registrations = ExamRegistration::where('user_id', $user->id)
@@ -60,6 +61,7 @@ class DashboardController extends Controller
             'registrations' => $registrations,
             'results' => $results,
             'upcomingExams' => $upcomingExams,
+            'bankInfo' => $bankInfo,
             'statistics' => [
                 'totalRegistrations' => $totalRegistrations,
                 'confirmedRegistrations' => $confirmedRegistrations,

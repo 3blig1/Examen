@@ -72,6 +72,26 @@
 
     <!-- My Registrations -->
     @if(auth()->user()->isStudent())
+    @if(!empty($bankInfo['name']) || !empty($bankInfo['iban']) || !empty($bankInfo['account_number']))
+    <div class="card mb-5">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-university"></i> Informations bancaires</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li><strong>Banque :</strong> {{ $bankInfo['name'] ?? '—' }}</li>
+                <li><strong>Nom du compte :</strong> {{ $bankInfo['account_name'] ?? '—' }}</li>
+                <li><strong>IBAN :</strong> {{ $bankInfo['iban'] ?? '—' }}</li>
+                <li><strong>BIC / SWIFT :</strong> {{ $bankInfo['bic'] ?? '—' }}</li>
+                <li><strong>Numéro de compte :</strong> {{ $bankInfo['account_number'] ?? '—' }}</li>
+                <li><strong>Adresse :</strong> {{ $bankInfo['address'] ?? '—' }}</li>
+            </ul>
+            @if(!empty($bankInfo['note']))
+                <div class="mt-3 text-muted">{{ $bankInfo['note'] }}</div>
+            @endif
+        </div>
+    </div>
+    @endif
     @if($registrations->count() > 0)
     <div class="card mb-5">
         <div class="card-header">

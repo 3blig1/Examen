@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use App\Models\ExamRegistration;
+use App\Mail\PaymentInstructionsMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ExamController extends Controller
 {
@@ -96,6 +98,8 @@ class ExamController extends Controller
 
         // Increment registered count
         $exam->increment('registered_count');
+
+        Mail::to($user->email)->send(new PaymentInstructionsMail($user, $exam, $amount));
 
         return back()->with('success', 'Registration successful! Please complete your payment.');
     }

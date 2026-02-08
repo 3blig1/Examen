@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'CIAL - ÖSD Exam Management')</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo/Logo_icone.png') }}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -485,8 +486,8 @@
                 <div class="col-md-4 mb-4">
                     <h5>Contacts</h5>
                     <p class="text-white-50 mb-0">
-                        <i class="fas fa-envelope"></i> info@osd-exams.com<br>
-                        <i class="fas fa-phone"></i> +43 1 234 5678
+                        <i class="fas fa-envelope"></i> info@examen.cial-de.com<br>
+                        <i class="fas fa-phone"></i> +228 90 49 84 87
                     </p>
                 </div>
             </div>

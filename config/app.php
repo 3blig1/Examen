@@ -69,6 +69,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Bank Information (for student payments)
+    |--------------------------------------------------------------------------
+    */
+    'bank' => [
+        'name' => env('BANK_NAME'),
+        'account_name' => env('BANK_ACCOUNT_NAME'),
+        'iban' => env('BANK_IBAN'),
+        'bic' => env('BANK_BIC'),
+        'account_number' => env('BANK_ACCOUNT_NUMBER'),
+        'address' => env('BANK_ADDRESS'),
+        'note' => env('BANK_PAYMENT_NOTE'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
