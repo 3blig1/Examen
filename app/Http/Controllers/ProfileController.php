@@ -31,6 +31,7 @@ class ProfileController extends Controller
             'phone' => 'nullable|string|max:50',
             'country' => 'nullable|string|max:100',
             'date_of_birth' => 'nullable|date',
+            'birth_place' => 'nullable|string|max:255',
         ]);
 
         $validated['name'] = $validated['first_name'] . ' ' . $validated['last_name'];

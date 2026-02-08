@@ -33,6 +33,7 @@ class AuthController extends Controller
             'phone' => 'required|string',
             'country' => 'required|string',
             'date_of_birth' => 'required|date',
+            'birth_place' => 'required|string|max:255',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -44,6 +45,7 @@ class AuthController extends Controller
             'phone' => $validated['phone'],
             'country' => $validated['country'],
             'date_of_birth' => $validated['date_of_birth'],
+            'birth_place' => $validated['birth_place'],
             'password' => Hash::make($validated['password']),
             'role' => 'student',
         ]);

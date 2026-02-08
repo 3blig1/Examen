@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    @stack('styles')
     
     <style>
         :root {
@@ -550,6 +551,26 @@
       });
     })();
     </script>
+
+        <script>
+        document.addEventListener('click', function(e){
+            var btn = e.target.closest('[data-toggle-password]');
+            if(!btn) return;
+            var targetId = btn.getAttribute('data-target');
+            if(!targetId) return;
+            var input = document.getElementById(targetId);
+            if(!input) return;
+
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            var icon = btn.querySelector('i');
+            if(icon){
+                icon.classList.toggle('fa-eye', !isPassword);
+                icon.classList.toggle('fa-eye-slash', isPassword);
+            }
+        });
+        </script>
 
     @stack('js')
 </body>

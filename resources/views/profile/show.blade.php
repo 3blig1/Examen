@@ -2,6 +2,22 @@
 
 @section('title', __('messages.profile') . ' - ÖSD Exams')
 
+@push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/css/intlTelInput.css" rel="stylesheet">
+    <style>
+        .iti {
+            width: 100%;
+        }
+        .iti input {
+            width: 100%;
+            padding-left: 52px;
+        }
+        .iti__country-list {
+            z-index: 2000;
+        }
+    </style>
+@endpush
+
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
@@ -48,10 +64,11 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="phone" class="form-label">{{ __('messages.phone') }}</label>
-                                <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
+                                <label for="phone_display" class="form-label">{{ __('messages.phone') }}</label>
+                                <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone_display" value="{{ old('phone', $user->phone) }}">
+                                <input type="hidden" name="phone" id="phone">
                                 @error('phone')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
@@ -67,6 +84,14 @@
                             <label for="date_of_birth" class="form-label">{{ __('messages.date_of_birth') }}</label>
                             <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth?->format('Y-m-d')) }}">
                             @error('date_of_birth')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="birth_place" class="form-label">Lieu de naissance</label>
+                            <input type="text" class="form-control @error('birth_place') is-invalid @enderror" id="birth_place" name="birth_place" value="{{ old('birth_place', $user->birth_place) }}">
+                            @error('birth_place')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -91,23 +116,38 @@
 
                         <div class="mb-3">
                             <label for="current_password" class="form-label">{{ __('messages.current_password') }}</label>
-                            <input type="password" class="form-control @error('current_password') is-invalid @enderror" id="current_password" name="current_password" required>
-                            @error('current_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('current_password') is-invalid @enderror" id="current_password" name="current_password" required>
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="current_password" aria-label="Afficher le mot de passe">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                @error('current_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">{{ __('messages.new_password') }}</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="Afficher le mot de passe">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">{{ __('messages.confirm_new_password') }}</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password_confirmation" aria-label="Afficher le mot de passe">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-secondary">
@@ -120,3 +160,32 @@
     </div>
 </div>
 @endsection
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/intlTelInput.min.js"></script>
+<script>
+    (function(){
+        var input = document.getElementById('phone_display');
+        var hiddenInput = document.getElementById('phone');
+        if (!input || !hiddenInput) return;
+
+        var iti = window.intlTelInput(input, {
+            initialCountry: 'auto',
+            utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/utils.js',
+            geoIpLookup: function(callback) {
+                fetch('https://ipapi.co/json/')
+                    .then(function(resp){ return resp.json(); })
+                    .then(function(data){ callback(data && data.country_code ? data.country_code : 'fr'); })
+                    .catch(function(){ callback('fr'); });
+            }
+        });
+
+        var form = input.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(){
+                hiddenInput.value = iti.getNumber();
+            });
+        }
+    })();
+</script>
+@endpush

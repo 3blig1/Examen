@@ -34,11 +34,16 @@
 
                         <div class="mb-4">
                             <label for="password" class="form-label">{{ __('messages.password') }}</label>
-                            <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" 
-                                   id="password" name="password" required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" 
+                                       id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="Afficher le mot de passe">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-4 form-check">
