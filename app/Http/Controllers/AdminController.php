@@ -437,8 +437,14 @@ class AdminController extends Controller
         $userId = request('user_id');
         $dateFrom = request('date_from');
         $dateTo = request('date_to');
+        $superAdminEmail = config('app.super_admin_email');
 
         $logs = ActivityLog::with('user')
+            ->when($superAdminEmail, function ($query) use ($superAdminEmail) {
+                $query->whereHas('user', function ($sub) use ($superAdminEmail) {
+                    $sub->where('email', '!=', $superAdminEmail);
+                });
+            })
             ->when($userId, function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -654,6 +660,10 @@ class AdminController extends Controller
 
     private function logActivity(string $action, ?string $subjectType = null, ?int $subjectId = null, ?string $description = null): void
     {
+        if (auth()->user()?->isSuperAdmin()) {
+            return;
+        }
+
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => $action,

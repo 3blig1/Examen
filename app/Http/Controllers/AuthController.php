@@ -66,7 +66,7 @@ class AuthController extends Controller
         }
 
         // If verification is not required, mark email as verified immediately
-        $user->update(['email_verified_at' => now()]);
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         return redirect()->route('login')
             ->with('success', 'Registration successful! You can now login.');
@@ -227,7 +227,7 @@ class AuthController extends Controller
         }
 
         $user = $verification->user;
-        $user->update(['email_verified_at' => now()]);
+        $user->forceFill(['email_verified_at' => now()])->save();
         $verification->verify();
 
         return redirect()->route('login')

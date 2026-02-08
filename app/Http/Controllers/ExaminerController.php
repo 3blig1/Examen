@@ -194,6 +194,10 @@ class ExaminerController extends Controller
 
     private function logActivity(string $action, ?string $subjectType = null, ?int $subjectId = null, ?string $description = null): void
     {
+        if (auth()->user()?->isSuperAdmin()) {
+            return;
+        }
+
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => $action,
