@@ -139,8 +139,8 @@
                             @if($registration->payment_status !== 'paid')
                                 <span class="text-muted">{{ __('messages.payment_required') }}</span>
                             @elseif($registration->result && $registration->result->published_at)
-                                <a href="{{ route('results.show', $registration->result) }}" class="badge bg-primary text-decoration-none">
-                                    {{ $registration->result->level_achieved ?? __('messages.result') }}
+                                <a href="{{ route('results.show', $registration->result) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> {{ __('messages.view') }}
                                 </a>
                             @elseif($registration->result && !$registration->result->published_at)
                                 <span class="text-muted">{{ __('messages.results_not_published') }}</span>
@@ -192,9 +192,8 @@
                 <thead>
                     <tr>
                         <th>{{ __('messages.exam') }}</th>
-                        <th>{{ __('messages.exam_session') }}</th>
+                        <th>{{ __('messages.session') }}</th>
                         <th>{{ __('messages.modules') }}</th>
-                        <th>{{ __('messages.status') }}</th>
                         <th>{{ __('messages.date_published') }}</th>
                     </tr>
                 </thead>
@@ -222,11 +221,6 @@
                                     <span class="badge bg-light text-dark me-1">{{ $labels[$module] ?? $module }}</span>
                                 @endforeach
                             @endif
-                        </td>
-                        <td>
-                            <span class="badge {{ $result->isPassed() ? 'bg-success' : 'bg-danger' }}">
-                                {{ ucfirst($result->status) }}
-                            </span>
                         </td>
                         <td>{{ $result->published_at ? $result->published_at->format('d/m/Y') : __('messages.pending') }}</td>
                     </tr>
