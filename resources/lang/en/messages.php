@@ -9,6 +9,7 @@ return [
     'students' => 'Students',
     'users' => 'Users',
     'exam_management' => 'Exam Management',
+    'exam_session' => 'Exam session',
     'logout' => 'Logout',
     'login' => 'Login',
     'register' => 'Register',

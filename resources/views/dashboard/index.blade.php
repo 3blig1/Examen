@@ -192,8 +192,8 @@
                 <thead>
                     <tr>
                         <th>{{ __('messages.exam') }}</th>
-                        <th>{{ __('messages.level_achieved') }}</th>
-                        <th>{{ __('messages.score') }}</th>
+                        <th>{{ __('messages.exam_session') }}</th>
+                        <th>{{ __('messages.modules') }}</th>
                         <th>{{ __('messages.status') }}</th>
                         <th>{{ __('messages.date_published') }}</th>
                     </tr>
@@ -203,13 +203,24 @@
                     <tr>
                         <td><strong><a href="{{ route('results.show', $result) }}">{{ $result->exam->name }}</a></strong></td>
                         <td>
-                            <span class="badge bg-primary">{{ $result->level_achieved ?? 'N/A' }}</span>
+                            {{ $result->exam?->date ? $result->exam->date->format('m/Y') : '-' }}
                         </td>
                         <td>
-                            @if($result->total_score)
-                                {{ $result->total_score }}/100
+                            @php
+                                $selectedModules = $result->registration?->selected_modules ?? [];
+                                $labels = [
+                                    'reading' => __('messages.module_reading'),
+                                    'listening' => __('messages.module_listening'),
+                                    'writing' => __('messages.module_writing'),
+                                    'speaking' => __('messages.module_speaking'),
+                                ];
+                            @endphp
+                            @if(empty($selectedModules))
+                                <span class="badge bg-light text-dark">{{ __('messages.all_four_modules_included') }}</span>
                             @else
-                                -
+                                @foreach($selectedModules as $module)
+                                    <span class="badge bg-light text-dark me-1">{{ $labels[$module] ?? $module }}</span>
+                                @endforeach
                             @endif
                         </td>
                         <td>

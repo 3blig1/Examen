@@ -9,6 +9,7 @@ return [
     'students' => 'Studenten',
     'users' => 'Benutzer',
     'exam_management' => 'Prüfungsverwaltung',
+    'exam_session' => 'Pruefungstermin',
     'logout' => 'Abmelden',
     'login' => 'Anmelden',
     'register' => 'Registrieren',

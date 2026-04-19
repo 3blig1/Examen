@@ -9,6 +9,7 @@ return [
     'students' => 'Étudiants',
     'users' => 'Utilisateurs',
     'exam_management' => 'Gestion des examens',
+    'exam_session' => "Session d'examen",
     'logout' => 'Déconnexion',
     'login' => 'Connexion',
     'register' => 'Inscription',
