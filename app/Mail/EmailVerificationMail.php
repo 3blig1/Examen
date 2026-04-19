@@ -13,16 +13,18 @@ class EmailVerificationMail extends Mailable
 
     public User $user;
     public string $verificationUrl;
+    public ?array $credentials;
 
-    public function __construct(User $user, string $verificationUrl)
+    public function __construct(User $user, string $verificationUrl, ?array $credentials = null)
     {
         $this->user = $user;
         $this->verificationUrl = $verificationUrl;
+        $this->credentials = $credentials;
     }
 
     public function build(): self
     {
-        return $this->subject('Vérification de votre email')
+        return $this->subject(__('messages.email_verify_title'))
             ->view('emails.email-verification');
     }
 }

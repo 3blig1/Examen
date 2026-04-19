@@ -19,7 +19,20 @@
                     <tr>
                         <td style="padding:28px 32px;">
                             <p style="margin:0 0 12px 0;font-size:15px;">{{ __('messages.email_verify_greeting', ['first' => $user->first_name, 'last' => $user->last_name]) }}</p>
-                            <p style="margin:0 0 16px 0;font-size:15px;">{{ __('messages.email_verify_body') }}</p>
+                            @if(!empty($credentials))
+                                <p style="margin:0 0 12px 0;font-size:15px;">{{ __('messages.email_verify_body_admin') }}</p>
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 16px 0;border:1px solid #e5e7eb;border-radius:6px;">
+                                    <tr>
+                                        <td style="padding:10px 14px;font-size:14px;">
+                                            <strong>{{ __('messages.email_login_label') }}:</strong> {{ $credentials['email'] ?? $user->email }}<br>
+                                            <strong>{{ __('messages.email_password_label') }}:</strong> {{ $credentials['password'] ?? '' }}
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280;">{{ __('messages.email_admin_password_note') }}</p>
+                            @else
+                                <p style="margin:0 0 16px 0;font-size:15px;">{{ __('messages.email_verify_body') }}</p>
+                            @endif
                             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px 0;">
                                 <tr>
                                     <td bgcolor="#2563eb" style="border-radius:6px;">

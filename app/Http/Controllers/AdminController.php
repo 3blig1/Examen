@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\EmailVerification;
 use App\Models\ExamRegistration;
 use App\Models\ExamResult;
 use App\Models\Exam;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Mail\EmailVerificationMail;
 use App\Mail\PaymentConfirmed;
 use App\Mail\RegistrationCancelled;
 use App\Mail\ResultsPublished;
@@ -806,7 +809,7 @@ class AdminController extends Controller
             'role' => 'required|in:admin,examiner',
         ]);
 
-        User::create([
+        $user = User::create([
             'title' => $validated['title'],
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
             'first_name' => $validated['first_name'],
@@ -815,8 +818,20 @@ class AdminController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'is_active' => true,
-            'email_verified_at' => now(),
+            'email_verified_at' => null,
         ]);
+
+        $token = Str::random(60);
+        EmailVerification::updateOrCreate(
+            ['user_id' => $user->id],
+            ['token' => $token, 'expires_at' => now()->addHours(24), 'verified_at' => null]
+        );
+
+        $url = route('verify-email', $token);
+        Mail::to($user->email)->send(new EmailVerificationMail($user, $url, [
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ]));
 
         return back()->with('success', "Utilisateur {$validated['role']} cree avec succes");
     }
