@@ -46,7 +46,14 @@
 
 							@if($showAllModules || in_array('reading', $selectedModules, true))
 								<div class="mb-3">
-									<label class="form-label">{{ __('messages.reading_score_label') }}</label>
+									<label class="form-label d-flex justify-content-between align-items-center">
+										<span>{{ __('messages.reading_score_label') }}</span>
+										@if($result->reading_score !== null)
+											<span class="badge {{ $result->reading_score >= 60 ? 'bg-success' : 'bg-danger' }}">
+												{{ $result->reading_score >= 60 ? __('messages.passed') : __('messages.failed') }}
+											</span>
+										@endif
+									</label>
 									<div class="progress" style="height:18px">
 										<div class="progress-bar bg-info" role="progressbar" style="width: {{ $result->reading_score ?? 0 }}%">{{ $result->reading_score ?? '-' }}</div>
 									</div>
@@ -55,7 +62,14 @@
 
 							@if($showAllModules || in_array('listening', $selectedModules, true))
 								<div class="mb-3">
-									<label class="form-label">{{ __('messages.listening_score_label') }}</label>
+									<label class="form-label d-flex justify-content-between align-items-center">
+										<span>{{ __('messages.listening_score_label') }}</span>
+										@if($result->listening_score !== null)
+											<span class="badge {{ $result->listening_score >= 60 ? 'bg-success' : 'bg-danger' }}">
+												{{ $result->listening_score >= 60 ? __('messages.passed') : __('messages.failed') }}
+											</span>
+										@endif
+									</label>
 									<div class="progress" style="height:18px">
 										<div class="progress-bar bg-primary" role="progressbar" style="width: {{ $result->listening_score ?? 0 }}%">{{ $result->listening_score ?? '-' }}</div>
 									</div>
@@ -64,7 +78,14 @@
 
 							@if($showAllModules || in_array('writing', $selectedModules, true))
 								<div class="mb-3">
-									<label class="form-label">{{ __('messages.writing_score_label') }}</label>
+									<label class="form-label d-flex justify-content-between align-items-center">
+										<span>{{ __('messages.writing_score_label') }}</span>
+										@if($result->writing_score !== null)
+											<span class="badge {{ $result->writing_score >= 60 ? 'bg-success' : 'bg-danger' }}">
+												{{ $result->writing_score >= 60 ? __('messages.passed') : __('messages.failed') }}
+											</span>
+										@endif
+									</label>
 									<div class="progress" style="height:18px">
 										<div class="progress-bar bg-warning" role="progressbar" style="width: {{ $result->writing_score ?? 0 }}%">{{ $result->writing_score ?? '-' }}</div>
 									</div>
@@ -73,7 +94,14 @@
 
 							@if($showAllModules || in_array('speaking', $selectedModules, true))
 								<div class="mb-3">
-									<label class="form-label">{{ __('messages.speaking_score_label') }}</label>
+									<label class="form-label d-flex justify-content-between align-items-center">
+										<span>{{ __('messages.speaking_score_label') }}</span>
+										@if($result->speaking_score !== null)
+											<span class="badge {{ $result->speaking_score >= 60 ? 'bg-success' : 'bg-danger' }}">
+												{{ $result->speaking_score >= 60 ? __('messages.passed') : __('messages.failed') }}
+											</span>
+										@endif
+									</label>
 									<div class="progress" style="height:18px">
 										<div class="progress-bar bg-secondary" role="progressbar" style="width: {{ $result->speaking_score ?? 0 }}%">{{ $result->speaking_score ?? '-' }}</div>
 									</div>
