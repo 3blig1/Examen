@@ -84,8 +84,16 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <p class="text-muted small"><strong>{{ __('messages.selected_modules') }}:</strong> 
+                                @php
+                                    $moduleLabels = [
+                                        'reading' => __('messages.module_reading'),
+                                        'listening' => __('messages.module_listening'),
+                                        'writing' => __('messages.module_writing'),
+                                        'speaking' => __('messages.module_speaking'),
+                                    ];
+                                @endphp
                                 @foreach($registration->selected_modules as $module)
-                                    <span class="badge bg-info">{{ ucfirst($module) }}</span>
+                                    <span class="badge bg-info">{{ $moduleLabels[$module] ?? ucfirst($module) }}</span>
                                 @endforeach
                             </p>
                         </div>
@@ -93,7 +101,7 @@
                             @if(in_array('reading', $registration->selected_modules))
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="reading_{{ $registration->id }}" class="form-label">{{ __('messages.reading_score') }} (0-100)</label>
+                                    <label for="reading_{{ $registration->id }}" class="form-label">{{ __('messages.reading_score_label') }}</label>
                                     <input type="number" class="form-control" id="reading_{{ $registration->id }}" name="reading_score" min="0" max="100" step="1" value="{{ $registration->result?->reading_score ?? 0 }}" required>
                                 </div>
                             </div>
@@ -104,7 +112,7 @@
                             @if(in_array('writing', $registration->selected_modules))
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="writing_{{ $registration->id }}" class="form-label">{{ __('messages.writing_score') }} (0-100)</label>
+                                    <label for="writing_{{ $registration->id }}" class="form-label">{{ __('messages.writing_score_label') }}</label>
                                     <input type="number" class="form-control" id="writing_{{ $registration->id }}" name="writing_score" min="0" max="100" step="1" value="{{ $registration->result?->writing_score ?? 0 }}" required>
                                 </div>
                             </div>
@@ -115,7 +123,7 @@
                             @if(in_array('listening', $registration->selected_modules))
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="listening_{{ $registration->id }}" class="form-label">{{ __('messages.listening_score') }} (0-100)</label>
+                                    <label for="listening_{{ $registration->id }}" class="form-label">{{ __('messages.listening_score_label') }}</label>
                                     <input type="number" class="form-control" id="listening_{{ $registration->id }}" name="listening_score" min="0" max="100" step="1" value="{{ $registration->result?->listening_score ?? 0 }}" required>
                                 </div>
                             </div>
@@ -126,7 +134,7 @@
                             @if(in_array('speaking', $registration->selected_modules))
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="speaking_{{ $registration->id }}" class="form-label">{{ __('messages.speaking_score') }} (0-100)</label>
+                                    <label for="speaking_{{ $registration->id }}" class="form-label">{{ __('messages.speaking_score_label') }}</label>
                                     <input type="number" class="form-control" id="speaking_{{ $registration->id }}" name="speaking_score" min="0" max="100" step="1" value="{{ $registration->result?->speaking_score ?? 0 }}" required>
                                 </div>
                             </div>

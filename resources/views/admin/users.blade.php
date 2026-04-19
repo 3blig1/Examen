@@ -2,7 +2,12 @@
 
 @section('content')
 <div class="container py-4">
-    <h1 class="mb-4">Gestion des utilisateurs</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Gestion des utilisateurs</h1>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+            Creer un utilisateur admin/examinateur
+        </a>
+    </div>
 
     <form method="GET" class="mb-4">
         <div class="row g-3">

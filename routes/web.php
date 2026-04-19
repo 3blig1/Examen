@@ -69,6 +69,8 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
     Route::get('/exams/{exam}/registrations/export/pdf', [AdminController::class, 'exportRegistrationsPdf'])->name('exams.registrations.export-pdf');
     Route::get('/exams/{exam}/registrations/export/excel', [AdminController::class, 'exportRegistrationsExcel'])->name('exams.registrations.export-excel');
     Route::get('/exams/{exam}/registrations', [AdminController::class, 'examRegistrations'])->name('exams.registrations');
+    Route::get('/exams/{exam}/examiners', [AdminController::class, 'manageExaminerAssignments'])->name('exams.examiners');
+    Route::post('/exams/{exam}/examiners', [AdminController::class, 'storeExaminerAssignments'])->name('exams.examiners.store');
     Route::post('/registrations/{registration}/confirm', [AdminController::class, 'confirmRegistration'])->name('registrations.confirm');
     Route::post('/registrations/{registration}/reject', [AdminController::class, 'rejectRegistration'])->name('registrations.reject');
     
@@ -78,9 +80,12 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
     Route::get('/exams/{exam}/results/export/excel', [AdminController::class, 'exportResultsExcel'])->name('exams.results.export-excel');
     Route::post('/registrations/{registration}/result', [AdminController::class, 'storeResult'])->name('results.store');
     Route::post('/exams/{exam}/publish-results', [AdminController::class, 'publishResults'])->name('exams.publish-results');
+    Route::get('/examiners/tasks', [AdminController::class, 'examinerTasks'])->name('examiners.tasks');
 
     // User management - manage roles
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users');
+    Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
     Route::post('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.update-role');
     Route::post('/users/super-admin/reset-password', [AdminController::class, 'resetSuperAdminPassword'])->name('users.reset-super-admin-password');
     Route::get('/payments', [AdminController::class, 'paymentHistory'])->name('payments.history');

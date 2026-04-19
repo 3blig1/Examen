@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\EmailVerificationMail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
@@ -27,6 +28,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
+            'title' => 'required|in:mr,mme,mlle,dr',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -34,10 +36,15 @@ class AuthController extends Controller
             'country' => 'required|string',
             'date_of_birth' => 'required|date',
             'birth_place' => 'required|string|max:255',
+            'sex' => 'required|in:male,female,other',
+            'birth_country' => 'required|string|max:255',
+            'nationality' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
             'password' => 'required|min:8|confirmed',
         ]);
 
         $user = User::create([
+            'title' => $validated['title'],
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
@@ -46,9 +53,18 @@ class AuthController extends Controller
             'country' => $validated['country'],
             'date_of_birth' => $validated['date_of_birth'],
             'birth_place' => $validated['birth_place'],
+            'sex' => $validated['sex'],
+            'birth_country' => $validated['birth_country'],
+            'nationality' => $validated['nationality'],
+            'address' => $validated['address'],
             'password' => Hash::make($validated['password']),
             'role' => 'student',
         ]);
+
+        $preferredLocale = session('locale') ?? $request->cookie('locale');
+        if (in_array($preferredLocale, ['fr', 'de', 'en'], true)) {
+            $user->forceFill(['locale' => $preferredLocale])->save();
+        }
 
         // Handle email verification behavior based on env flag
         if (env('REQUIRE_EMAIL_VERIFICATION', true)) {
@@ -170,6 +186,16 @@ class AuthController extends Controller
 
         auth()->login($user);
         $request->session()->regenerate();
+
+        if (in_array($user->locale, ['fr', 'de', 'en'], true)) {
+            session(['locale' => $user->locale]);
+            Cookie::queue('locale', $user->locale, 60 * 24 * 365);
+        } else {
+            $preferredLocale = session('locale') ?? $request->cookie('locale');
+            if (in_array($preferredLocale, ['fr', 'de', 'en'], true)) {
+                $user->forceFill(['locale' => $preferredLocale])->save();
+            }
+        }
 
         // Redirect based on user role
         if ($user->isAdmin()) {

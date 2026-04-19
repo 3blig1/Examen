@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'CIAL - ÖSD Exam Management')</title>
+    <title>@yield('title', 'CIAL - ÖSD Examen ')</title>
     <link rel="icon" type="image/png" href="{{ asset('logo/Logo_icone.png') }}">
     
     <!-- Bootstrap CSS -->
@@ -355,6 +355,7 @@
                                     <li><a class="dropdown-item" href="{{ route('admin.activity.logs') }}"><i class="fas fa-clipboard-list me-2"></i>{{ __('messages.activity_logs') }}</a></li>
                                     <li><a class="dropdown-item" href="{{ route('admin.exams.completed-results') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('messages.completed_exam_results') }}</a></li>
                                     <li><a class="dropdown-item" href="{{ route('admin.exams') }}"><i class="fas fa-book me-2"></i>{{ __('messages.exams_management') }}</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.examiners.tasks') }}"><i class="fas fa-user-check me-2"></i>{{ __('messages.examiner_tasks') }}</a></li>
                                     <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2"></i>{{ __('messages.profile') }}</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

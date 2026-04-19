@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\ExamRegistration;
+use App\Models\ExamExaminerAssignment;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -25,14 +26,17 @@ class ExaminerController extends Controller
 
         $upcomingExams = Exam::where('status', 'upcoming')
             ->orderBy('date')
+            ->take(6)
             ->get();
 
         $ongoingExams = Exam::where('status', 'ongoing')
             ->orderBy('date')
+            ->take(6)
             ->get();
 
         $completedExams = Exam::where('status', 'completed')
             ->orderBy('date', 'desc')
+            ->take(6)
             ->get();
 
         $pendingResults = ExamRegistration::whereHas('exam', function ($query) {
@@ -47,10 +51,44 @@ class ExaminerController extends Controller
             })
             ->count();
 
+        $pendingAssignmentsCount = ExamExaminerAssignment::where('examiner_id', auth()->id())
+            ->whereHas('exam', function ($query) {
+                $query->where('status', '!=', 'completed');
+            })
+            ->count();
+
+        $pendingAssignments = ExamExaminerAssignment::where('examiner_id', auth()->id())
+            ->whereHas('exam', function ($query) {
+                $query->where('status', '!=', 'completed');
+            })
+            ->with('exam')
+            ->orderBy('exam_id')
+            ->take(6)
+            ->get();
+
+        $completedAssignmentsCount = ExamExaminerAssignment::where('examiner_id', auth()->id())
+            ->whereHas('exam', function ($query) {
+                $query->where('status', 'completed');
+            })
+            ->count();
+
+        $completedAssignments = ExamExaminerAssignment::where('examiner_id', auth()->id())
+            ->whereHas('exam', function ($query) {
+                $query->where('status', 'completed');
+            })
+            ->with('exam')
+            ->orderBy('exam_id')
+            ->take(6)
+            ->get();
+
         return view('dashboard.examiner', [
             'upcomingExams' => $upcomingExams,
             'ongoingExams' => $ongoingExams,
             'completedExams' => $completedExams,
+            'pendingAssignments' => $pendingAssignments,
+            'completedAssignments' => $completedAssignments,
+            'pendingAssignmentsCount' => $pendingAssignmentsCount,
+            'completedAssignmentsCount' => $completedAssignmentsCount,
             'statistics' => [
                 'pendingResults' => $pendingResults,
             ],

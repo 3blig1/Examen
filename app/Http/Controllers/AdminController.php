@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\ExamRegistration;
 use App\Models\ExamResult;
 use App\Models\Exam;
+use App\Models\ExamExaminerAssignment;
 use App\Models\PaymentHistory;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
@@ -214,6 +215,148 @@ class AdminController extends Controller
     }
 
     /**
+     * Manage examiner assignments for an exam
+     */
+    public function manageExaminerAssignments(Exam $exam)
+    {
+        $examiners = User::where('role', 'examiner')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        $assignments = ExamExaminerAssignment::where('exam_id', $exam->id)
+            ->get()
+            ->keyBy('examiner_id');
+
+        return view('admin.exams-examiners', [
+            'exam' => $exam,
+            'examiners' => $examiners,
+            'assignments' => $assignments,
+        ]);
+    }
+
+    /**
+     * Store examiner assignments for an exam
+     */
+    public function storeExaminerAssignments(Request $request, Exam $exam)
+    {
+        $validated = $request->validate([
+            'assignments' => 'nullable|array',
+            'assignments.*' => 'nullable|array',
+            'assignments.*.*' => 'in:reading,writing,listening,speaking',
+        ]);
+
+        $validExaminerIds = User::where('role', 'examiner')->pluck('id')->all();
+        $assignments = $validated['assignments'] ?? [];
+
+        ExamExaminerAssignment::where('exam_id', $exam->id)->delete();
+
+        foreach ($assignments as $examinerId => $modules) {
+            if (!in_array((int) $examinerId, $validExaminerIds, true)) {
+                continue;
+            }
+
+            $modules = array_values(array_unique($modules));
+            if (count($modules) === 0) {
+                continue;
+            }
+
+            ExamExaminerAssignment::create([
+                'exam_id' => $exam->id,
+                'examiner_id' => (int) $examinerId,
+                'modules' => $modules,
+            ]);
+        }
+
+        return back()->with('success', 'Affectations des examinateurs mises a jour');
+    }
+
+    /**
+     * View ongoing exam tasks by examiner
+     */
+    public function examinerTasks()
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        Exam::refreshStatuses();
+
+        $statusFilter = request('status', 'all');
+        if (!in_array($statusFilter, ['all', 'ongoing', 'upcoming'], true)) {
+            $statusFilter = 'all';
+        }
+
+        $examinerId = request('examiner');
+        if ($examinerId !== null && !is_numeric($examinerId)) {
+            $examinerId = null;
+        }
+
+        $dateFrom = request('date_from');
+        $dateTo = request('date_to');
+
+        $filteredStatuses = $statusFilter === 'all'
+            ? ['ongoing', 'upcoming']
+            : [$statusFilter];
+
+        $examiners = User::where('role', 'examiner')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        $examFilter = function ($query) use ($dateFrom, $dateTo) {
+            if ($dateFrom) {
+                $query->whereDate('date', '>=', $dateFrom);
+            }
+            if ($dateTo) {
+                $query->whereDate('date', '<=', $dateTo);
+            }
+        };
+
+        $assignmentsByExaminer = ExamExaminerAssignment::with(['exam', 'examiner'])
+            ->when($examinerId, function ($query) use ($examinerId) {
+                $query->where('examiner_id', (int) $examinerId);
+            })
+            ->whereHas('exam', function ($query) use ($filteredStatuses, $examFilter) {
+                $query->whereIn('status', $filteredStatuses);
+                $examFilter($query);
+            })
+            ->orderBy('examiner_id')
+            ->orderBy('exam_id')
+            ->get()
+            ->groupBy('examiner_id');
+
+        $ongoingCount = ExamExaminerAssignment::when($examinerId, function ($query) use ($examinerId) {
+                $query->where('examiner_id', (int) $examinerId);
+            })
+            ->whereHas('exam', function ($query) use ($examFilter) {
+                $query->where('status', 'ongoing');
+                $examFilter($query);
+            })
+            ->count();
+
+        $upcomingCount = ExamExaminerAssignment::when($examinerId, function ($query) use ($examinerId) {
+                $query->where('examiner_id', (int) $examinerId);
+            })
+            ->whereHas('exam', function ($query) use ($examFilter) {
+                $query->where('status', 'upcoming');
+                $examFilter($query);
+            })
+            ->count();
+
+        return view('admin.examiner-tasks', [
+            'assignmentsByExaminer' => $assignmentsByExaminer,
+            'statusFilter' => $statusFilter,
+            'ongoingCount' => $ongoingCount,
+            'upcomingCount' => $upcomingCount,
+            'examiners' => $examiners,
+            'examinerId' => $examinerId,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+        ]);
+    }
+
+    /**
      * Confirm registration
      */
     public function confirmRegistration(ExamRegistration $registration)
@@ -339,12 +482,53 @@ class AdminController extends Controller
             ->with('user')
             ->get();
 
+        $examinerAssignments = $this->getExaminerAssignmentsByType($exam->id);
+
         $pdf = Pdf::loadView('admin.exports.registrations-pdf', [
             'exam' => $exam,
             'registrations' => $registrations,
+            'examinerAssignments' => $examinerAssignments,
         ]);
 
         return $pdf->download("registrations-exam-{$exam->id}.pdf");
+    }
+
+    private function getExaminerAssignmentsByType(int $examId): array
+    {
+        $assignments = ExamExaminerAssignment::where('exam_id', $examId)
+            ->with('examiner')
+            ->get();
+
+        $written = [];
+        $oral = [];
+
+        foreach ($assignments as $assignment) {
+            $modules = $assignment->modules ?? [];
+            $examiner = $assignment->examiner;
+            $name = $examiner
+                ? trim($examiner->first_name . ' ' . $examiner->last_name)
+                : '';
+
+            if ($name === '') {
+                continue;
+            }
+
+            if (array_intersect($modules, ['reading', 'listening', 'writing'])) {
+                $written[] = $name;
+            }
+
+            if (in_array('speaking', $modules, true)) {
+                $oral[] = $name;
+            }
+        }
+
+        sort($written);
+        sort($oral);
+
+        return [
+            'written' => array_values(array_unique($written)),
+            'oral' => array_values(array_unique($oral)),
+        ];
     }
 
     /**
@@ -598,6 +782,43 @@ class AdminController extends Controller
             ->paginate(20)
             ->withQueryString();
         return view('admin.users', ['users' => $users]);
+    }
+
+    /**
+     * Show create user page for admin/examiner
+     */
+    public function createUser()
+    {
+        return view('admin.users-create');
+    }
+
+    /**
+     * Create an admin or examiner user
+     */
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|in:mr,mme,mlle,dr',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'role' => 'required|in:admin,examiner',
+        ]);
+
+        User::create([
+            'title' => $validated['title'],
+            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        return back()->with('success', "Utilisateur {$validated['role']} cree avec succes");
     }
 
     /**

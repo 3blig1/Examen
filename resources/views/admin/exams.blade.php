@@ -92,6 +92,9 @@
                             <a href="{{ route('admin.exams.registrations', $exam) }}" class="btn btn-sm btn-info" title="{{ __('messages.registrations_for_exam') }}">
                                 <i class="fas fa-list"></i>
                             </a>
+                            <a href="{{ route('admin.exams.examiners', $exam) }}" class="btn btn-sm btn-secondary" title="Gestion des examinateurs">
+                                <i class="fas fa-user-check"></i>
+                            </a>
                             <a href="{{ route('admin.exams.results', $exam) }}" class="btn btn-sm btn-warning" title="{{ __('messages.enter_results') }}">
                                 <i class="fas fa-pencil-alt"></i>
                             </a>

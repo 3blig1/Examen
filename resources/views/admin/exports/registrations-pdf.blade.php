@@ -17,23 +17,52 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('messages.student_header') }}</th>
-                <th>{{ __('messages.email_header') }}</th>
-                <th>{{ __('messages.country_header') }}</th>
-                <th>{{ __('messages.status') }}</th>
-                <th>{{ __('messages.payment') }}</th>
-                <th>{{ __('messages.registration_date') }}</th>
+                <th>Prüfungsstufe</th>
+                <th>Titel Vor</th>
+                <th>Vorname</th>
+                <th>Familienname</th>
+                <th>Titel Nach</th>
+                <th>Geschlecht</th>
+                <th>Geburts-Ort</th>
+                <th>Geburts-Land</th>
+                <th>Nationalität</th>
+                <th>Geburts-Datum</th>
+                <th>Prüfer/In Nr 1 schriftlich</th>
+                <th>Prüfer/In Nr 2 schriftlich</th>
+                <th>Prüfer/In Nr 1 mündlich</th>
+                <th>Prüfer/In Nr 2 mündlich</th>
+                <th>Modul Lesen</th>
+                <th>Modul Hören</th>
+                <th>Modul Schreiben</th>
+                <th>Modul Sprechen</th>
             </tr>
         </thead>
         <tbody>
             @foreach($registrations as $registration)
             <tr>
-                <td>{{ $registration->user->first_name }} {{ $registration->user->last_name }}</td>
-                <td>{{ $registration->user->email }}</td>
-                <td>{{ $registration->user->country }}</td>
-                <td>{{ $registration->status }}</td>
-                <td>{{ $registration->payment_status }}</td>
-                <td>{{ $registration->created_at?->format('d/m/Y H:i') }}</td>
+                @php
+                    $selectedModules = $registration->selected_modules ?? [];
+                    $writtenExaminers = $examinerAssignments['written'] ?? [];
+                    $oralExaminers = $examinerAssignments['oral'] ?? [];
+                @endphp
+                <td>{{ $registration->exam?->name }}</td>
+                <td>{{ $registration->user?->title }}</td>
+                <td>{{ $registration->user?->first_name }}</td>
+                <td>{{ $registration->user?->last_name }}</td>
+                <td></td>
+                <td>{{ $registration->user?->sex }}</td>
+                <td>{{ $registration->user?->birth_place }}</td>
+                <td>{{ $registration->user?->birth_country }}</td>
+                <td>{{ $registration->user?->nationality }}</td>
+                <td>{{ $registration->user?->date_of_birth?->format('d/m/Y') }}</td>
+                <td>{{ $writtenExaminers[0] ?? '' }}</td>
+                <td>{{ $writtenExaminers[1] ?? '' }}</td>
+                <td>{{ $oralExaminers[0] ?? '' }}</td>
+                <td>{{ $oralExaminers[1] ?? '' }}</td>
+                <td>{{ in_array('reading', $selectedModules, true) ? 'J' : '' }}</td>
+                <td>{{ in_array('listening', $selectedModules, true) ? 'J' : '' }}</td>
+                <td>{{ in_array('writing', $selectedModules, true) ? 'J' : '' }}</td>
+                <td>{{ in_array('speaking', $selectedModules, true) ? 'J' : '' }}</td>
             </tr>
             @endforeach
         </tbody>
