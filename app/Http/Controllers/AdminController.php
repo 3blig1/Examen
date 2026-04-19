@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\EmailVerification;
 use App\Models\ExamRegistration;
 use App\Models\ExamResult;
 use App\Models\Exam;
 use App\Models\ExamExaminerAssignment;
+use App\Models\EmailVerification;
 use App\Models\PaymentHistory;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
@@ -770,6 +770,7 @@ class AdminController extends Controller
             ->when($superAdminEmail, function ($query) use ($superAdminEmail) {
                 $query->where('email', '!=', $superAdminEmail);
             })
+            ->where('is_active', true)
             ->when($name, function ($query) use ($name) {
                 $query->where(function ($sub) use ($name) {
                     $sub->where('first_name', 'like', "%{$name}%")
@@ -785,6 +786,40 @@ class AdminController extends Controller
             ->paginate(20)
             ->withQueryString();
         return view('admin.users', ['users' => $users]);
+    }
+
+    /**
+     * Show inactive users
+     */
+    public function inactiveUsers()
+    {
+        $name = request('name');
+        $email = request('email');
+        $role = request('role');
+
+        $superAdminEmail = config('app.super_admin_email');
+
+        $users = User::orderBy('created_at', 'desc')
+            ->when($superAdminEmail, function ($query) use ($superAdminEmail) {
+                $query->where('email', '!=', $superAdminEmail);
+            })
+            ->where('is_active', false)
+            ->when($name, function ($query) use ($name) {
+                $query->where(function ($sub) use ($name) {
+                    $sub->where('first_name', 'like', "%{$name}%")
+                        ->orWhere('last_name', 'like', "%{$name}%");
+                });
+            })
+            ->when($email, function ($query) use ($email) {
+                $query->where('email', 'like', "%{$email}%");
+            })
+            ->when($role, function ($query) use ($role) {
+                $query->where('role', $role);
+            })
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.users-inactive', ['users' => $users]);
     }
 
     /**
@@ -807,6 +842,7 @@ class AdminController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'role' => 'required|in:admin,examiner',
+            'send_credentials' => 'nullable|boolean',
         ]);
 
         $user = User::create([
@@ -816,6 +852,7 @@ class AdminController extends Controller
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'must_change_password' => true,
             'role' => $validated['role'],
             'is_active' => true,
             'email_verified_at' => null,
@@ -828,10 +865,12 @@ class AdminController extends Controller
         );
 
         $url = route('verify-email', $token);
-        Mail::to($user->email)->send(new EmailVerificationMail($user, $url, [
+        $sendCredentials = $request->boolean('send_credentials');
+        $credentials = $sendCredentials ? [
             'email' => $validated['email'],
             'password' => $validated['password'],
-        ]));
+        ] : null;
+        Mail::to($user->email)->send(new EmailVerificationMail($user, $url, $credentials));
 
         return back()->with('success', "Utilisateur {$validated['role']} cree avec succes");
     }
@@ -858,6 +897,74 @@ class AdminController extends Controller
         $user->save();
 
         return back()->with('success', 'User role updated successfully');
+    }
+
+    /**
+     * Deactivate a user
+     */
+    public function deactivateUser(User $user)
+    {
+        if (!auth()->user()->canManageUsers()) {
+            return back()->with('error', __('messages.user_manage_permission_required'));
+        }
+
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', __('messages.user_deactivate_super_admin_forbidden'));
+        }
+
+        if (auth()->id() === $user->id) {
+            return back()->with('error', __('messages.user_deactivate_self_forbidden'));
+        }
+
+        $user->forceFill(['is_active' => false])->save();
+
+        return back()->with('success', __('messages.user_deactivated'));
+    }
+
+    /**
+     * Activate a user
+     */
+    public function activateUser(User $user)
+    {
+        if (!auth()->user()->canManageUsers()) {
+            return back()->with('error', __('messages.user_manage_permission_required'));
+        }
+
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', __('messages.user_activate_super_admin_forbidden'));
+        }
+
+        $user->forceFill(['is_active' => true])->save();
+
+        return back()->with('success', __('messages.user_activated'));
+    }
+
+    /**
+     * Allow an admin to manage users (super admin only)
+     */
+    public function updateManageUsersPermission(Request $request, User $user)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            return back()->with('error', __('messages.user_manage_permission_super_admin_only'));
+        }
+
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', __('messages.user_manage_permission_super_admin_only'));
+        }
+
+        if ($user->role !== 'admin') {
+            return back()->with('error', __('messages.user_manage_permission_admin_only'));
+        }
+
+        $validated = $request->validate([
+            'admin_can_manage_users' => 'required|boolean',
+        ]);
+
+        $user->forceFill([
+            'admin_can_manage_users' => (bool) $validated['admin_can_manage_users'],
+        ])->save();
+
+        return back()->with('success', __('messages.user_manage_permission_updated'));
     }
 
     /**

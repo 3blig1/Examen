@@ -151,6 +151,7 @@ class AuthController extends Controller
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
+                    'must_change_password' => false,
                 ])->save();
             }
         );
@@ -195,6 +196,11 @@ class AuthController extends Controller
             if (in_array($preferredLocale, ['fr', 'de', 'en'], true)) {
                 $user->forceFill(['locale' => $preferredLocale])->save();
             }
+        }
+
+        if ($user->must_change_password) {
+            return redirect()->route('profile.show')
+                ->with('error', __('messages.password_change_required'));
         }
 
         // Redirect based on user role

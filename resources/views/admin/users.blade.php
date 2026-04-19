@@ -4,9 +4,14 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ __('messages.user_management') }}</h1>
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-            {{ __('messages.create_admin_examiner') }}
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.users.inactive') }}" class="btn btn-outline-secondary">
+                {{ __('messages.inactive_users') }}
+            </a>
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                {{ __('messages.create_admin_examiner') }}
+            </a>
+        </div>
     </div>
 
     <form method="GET" class="mb-4">
@@ -52,6 +57,10 @@
                     <th>{{ __('messages.name') }}</th>
                     <th>{{ __('messages.email_header') }}</th>
                     <th>{{ __('messages.role') }}</th>
+                    <th>{{ __('messages.status') }}</th>
+                    @if(auth()->user()->isSuperAdmin())
+                        <th>{{ __('messages.user_manage_permission') }}</th>
+                    @endif
                     <th>{{ __('messages.action') }}</th>
                 </tr>
             </thead>
@@ -71,6 +80,26 @@
                         @endif
                     </td>
                     <td>
+                        <span class="badge {{ $user->is_active ? 'bg-success' : 'bg-secondary' }}">
+                            {{ $user->is_active ? __('messages.status_active') : __('messages.status_inactive') }}
+                        </span>
+                    </td>
+                    @if(auth()->user()->isSuperAdmin())
+                        <td>
+                            @if($user->role === 'admin' && !$user->isSuperAdmin())
+                                <form method="POST" action="{{ route('admin.users.manage-permission', $user) }}" class="d-inline-block">
+                                    @csrf
+                                    <input type="hidden" name="admin_can_manage_users" value="{{ $user->admin_can_manage_users ? 0 : 1 }}">
+                                    <button type="button" class="btn btn-sm {{ $user->admin_can_manage_users ? 'btn-outline-danger' : 'btn-outline-success' }} confirm-action" data-confirm-message="{{ $user->admin_can_manage_users ? __('messages.confirm_revoke_permission') : __('messages.confirm_grant_permission') }}">
+                                        {{ $user->admin_can_manage_users ? __('messages.revoke_permission') : __('messages.grant_permission') }}
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                    @endif
+                    <td>
                         <form method="POST" action="{{ route('admin.users.update-role', $user) }}" class="d-inline-block">
                             @csrf
                             <div class="input-group">
@@ -82,6 +111,14 @@
                                 <button class="btn btn-sm btn-primary" type="submit">{{ __('messages.update_button') }}</button>
                             </div>
                         </form>
+                        @if(auth()->user()->canManageUsers() && !$user->isSuperAdmin() && auth()->id() !== $user->id)
+                            <form method="POST" action="{{ route('admin.users.deactivate', $user) }}" class="d-inline-block ms-2">
+                                @csrf
+                                <button type="button" class="btn btn-sm btn-warning confirm-action" data-confirm-message="{{ __('messages.confirm_deactivate') }}">
+                                    {{ __('messages.deactivate') }}
+                                </button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

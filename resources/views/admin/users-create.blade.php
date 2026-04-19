@@ -60,6 +60,11 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-check form-switch mt-3">
+                    <input class="form-check-input" type="checkbox" id="send_credentials" name="send_credentials" value="1" {{ old('send_credentials', '1') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="send_credentials">{{ __('messages.send_credentials_label') }}</label>
+                    <div class="form-text">{{ __('messages.send_credentials_help') }}</div>
+                </div>
                 <div class="mt-3">
                     <button type="submit" class="btn btn-primary">{{ __('messages.create_user_button') }}</button>
                 </div>

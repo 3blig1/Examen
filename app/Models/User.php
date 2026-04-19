@@ -35,8 +35,10 @@ class User extends Authenticatable
         'address',
         'locale',
         'password',
+        'must_change_password',
         'role',
         'is_active',
+        'admin_can_manage_users',
     ];
 
     /**
@@ -60,6 +62,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
+            'must_change_password' => 'boolean',
+            'admin_can_manage_users' => 'boolean',
         ];
     }
 
@@ -68,6 +72,7 @@ class User extends Authenticatable
         static::saving(function (User $user) {
             if ($user->isSuperAdmin()) {
                 $user->role = 'admin';
+                $user->admin_can_manage_users = true;
             }
         });
 
@@ -158,5 +163,13 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * Check if user can manage (activate/deactivate) users
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isSuperAdmin() || ($this->isAdmin() && $this->admin_can_manage_users);
     }
 }

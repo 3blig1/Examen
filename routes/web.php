@@ -84,8 +84,12 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
 
     // User management - manage roles
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users');
+    Route::get('/users/inactive', [AdminController::class, 'inactiveUsers'])->name('users.inactive');
     Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
     Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::post('/users/{user}/manage-users-permission', [AdminController::class, 'updateManageUsersPermission'])->name('users.manage-permission');
+    Route::post('/users/{user}/deactivate', [AdminController::class, 'deactivateUser'])->name('users.deactivate');
+    Route::post('/users/{user}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
     Route::post('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.update-role');
     Route::post('/users/super-admin/reset-password', [AdminController::class, 'resetSuperAdminPassword'])->name('users.reset-super-admin-password');
     Route::get('/payments', [AdminController::class, 'paymentHistory'])->name('payments.history');
