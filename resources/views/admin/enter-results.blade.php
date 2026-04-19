@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Saisir les résultats - ÖSD Exams')
+@section('title', __('messages.enter_results_title') . ' - ÖSD Exams')
 
 @section('content')
 <div class="container py-5">
@@ -43,7 +43,7 @@
                         <td>
                             @if($registration->result)
                                 <span class="badge {{ $registration->result->isPassed() ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($registration->result->status) }}
+                                    {{ $registration->result->isPassed() ? __('messages.passed') : __('messages.failed') }}
                                 </span>
                             @else
                                 <span class="badge bg-secondary">{{ __('messages.not_entered') }}</span>
@@ -104,9 +104,9 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="level_{{ $registration->id }}" class="form-label">Niveau atteint</label>
+                                                    <label for="level_{{ $registration->id }}" class="form-label">{{ __('messages.level_achieved') }}</label>
                                                     <select class="form-select" id="level_{{ $registration->id }}" name="level_achieved">
-                                                        <option value="">Sélectionnez un niveau</option>
+                                                        <option value="">{{ __('messages.select_level') }}</option>
                                                         <option value="A1" {{ $registration->result?->level_achieved === 'A1' ? 'selected' : '' }}>A1</option>
                                                         <option value="A2" {{ $registration->result?->level_achieved === 'A2' ? 'selected' : '' }}>A2</option>
                                                         <option value="B1" {{ $registration->result?->level_achieved === 'B1' ? 'selected' : '' }}>B1</option>
@@ -118,23 +118,23 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="status_{{ $registration->id }}" class="form-label">Statut</label>
+                                                    <label for="status_{{ $registration->id }}" class="form-label">{{ __('messages.status') }}</label>
                                                     <select class="form-select" id="status_{{ $registration->id }}" name="status" required>
-                                                        <option value="passed" {{ $registration->result?->status === 'passed' ? 'selected' : '' }}>Réussi</option>
-                                                        <option value="failed" {{ $registration->result?->status === 'failed' ? 'selected' : '' }}>Échoué</option>
+                                                        <option value="passed" {{ $registration->result?->status === 'passed' ? 'selected' : '' }}>{{ __('messages.passed') }}</option>
+                                                        <option value="failed" {{ $registration->result?->status === 'failed' ? 'selected' : '' }}>{{ __('messages.failed') }}</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="remarks_{{ $registration->id }}" class="form-label">Remarques</label>
+                                            <label for="remarks_{{ $registration->id }}" class="form-label">{{ __('messages.remarks') }}</label>
                                             <textarea class="form-control" id="remarks_{{ $registration->id }}" name="remarks" rows="3">{{ $registration->result?->remarks ?? '' }}</textarea>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-primary">Enregistrer les résultats</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.cancel_btn') }}</button>
+                                        <button type="submit" class="btn btn-primary">{{ __('messages.save_results') }}</button>
                                     </div>
                                 </form>
                             </div>
@@ -143,7 +143,7 @@
                     @empty
                     <tr>
                         <td colspan="8" class="text-center text-muted py-4">
-                            Aucune inscription pour cet examen
+                            {{ __('messages.no_registrations_for_exam') }}
                         </td>
                     </tr>
                     @endforelse
@@ -155,8 +155,8 @@
         <div class="card-footer">
             <form action="{{ route('admin.exams.publish-results', $exam) }}" method="POST">
                 @csrf
-                <button type="button" class="btn btn-success confirm-action" data-confirm-message="{{ __('messages.publish_all_results') ?? 'Voulez-vous publier tous les résultats?' }}">
-                    <i class="fas fa-share"></i> Publier tous les résultats
+                <button type="button" class="btn btn-success confirm-action" data-confirm-message="{{ __('messages.publish_all_results') }}">
+                    <i class="fas fa-share"></i> {{ __('messages.publish_all_results') }}
                 </button>
             </form>
         </div>

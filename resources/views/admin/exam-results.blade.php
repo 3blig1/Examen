@@ -44,7 +44,7 @@
                         <td>{{ $registration->user->email }}</td>
                         <td>
                             @if($registration->result)
-                                <span class="badge bg-primary">{{ $registration->result->level_achieved ?? 'N/A' }}</span>
+                                <span class="badge bg-primary">{{ $registration->result->level_achieved ?? __('messages.not_available_short') }}</span>
                             @else
                                 <span class="text-muted">{{ __('messages.no_result') }}</span>
                             @endif
@@ -59,7 +59,7 @@
                         <td>
                             @if($registration->result)
                                 <span class="badge {{ $registration->result->isPassed() ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($registration->result->status) }}
+                                    {{ $registration->result->isPassed() ? __('messages.passed') : __('messages.failed') }}
                                 </span>
                             @else
                                 <span class="text-muted">{{ __('messages.no_result') }}</span>

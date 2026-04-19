@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des examinateurs')
+@section('title', __('messages.examiner_management'))
 
 @section('content')
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Gestion des examinateurs</h2>
-            <div class="text-muted">Examen: {{ $exam->name }} - {{ $exam->date->format('d/m/Y H:i') }}</div>
+            <h2 class="mb-1">{{ __('messages.examiner_management') }}</h2>
+            <div class="text-muted">{{ __('messages.exam') }}: {{ $exam->name }} - {{ $exam->date->format('d/m/Y H:i') }}</div>
         </div>
-        <a href="{{ route('admin.exams') }}" class="btn btn-outline-secondary">Retour</a>
+        <a href="{{ route('admin.exams') }}" class="btn btn-outline-secondary">{{ __('messages.back_button') }}</a>
     </div>
 
     @if(session('success'))
@@ -32,11 +32,11 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Examinateur</th>
-                            <th>Module Lecture</th>
-                            <th>Module Ecoute</th>
-                            <th>Module Ecriture</th>
-                            <th>Module Expression orale</th>
+                            <th>{{ __('messages.examiner_role') }}</th>
+                            <th>{{ __('messages.module_reading') }}</th>
+                            <th>{{ __('messages.module_listening') }}</th>
+                            <th>{{ __('messages.module_writing') }}</th>
+                            <th>{{ __('messages.module_speaking') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,7 +65,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">Aucun examinateur trouve</td>
+                                <td colspan="5" class="text-center text-muted py-4">{{ __('messages.no_examiners') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -74,7 +74,7 @@
         </div>
 
         <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Enregistrer les affectations</button>
+            <button type="submit" class="btn btn-primary">{{ __('messages.save_assignments') }}</button>
         </div>
     </form>
 </div>

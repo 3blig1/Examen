@@ -119,7 +119,7 @@
                             <div class="col-md-6 mb-4">
                                 <label for="location" class="form-label">{{ __('messages.location_label') }}</label>
                                 <input type="text" class="form-control @error('location') is-invalid @enderror" 
-                                       id="location" name="location" value="{{ old('location') }}" placeholder="Ex: Salle 101, Building A">
+                                       id="location" name="location" value="{{ old('location') }}" placeholder="{{ __('messages.location_placeholder') }}">
                                 @error('location')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

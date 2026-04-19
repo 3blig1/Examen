@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Examiner Dashboard - ÖSD Exams')
+@section('title', __('messages.examiner_dashboard_title'))
 
 @push('styles')
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -235,7 +235,7 @@
                                                     @endforeach
                                                 </div>
                                             @else
-                                                <span class="text-muted">-</span>
+                                                <span class="text-muted">{{ __('messages.not_available_short') }}</span>
                                             @endif
                                         </td>
                                     </tr>

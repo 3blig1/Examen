@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Accueil - ÖSD Exams')
+@section('title', __('messages.home_page_title'))
 
 @section('content')
 <!-- Hero Section -->

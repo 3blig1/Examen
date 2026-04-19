@@ -77,7 +77,7 @@
                     <tr>
                         <td><strong>{{ $exam->name }}</strong></td>
                         <td>{{ $exam->date->format('d/m/Y H:i') }}</td>
-                        <td>{{ $exam->location ?? 'N/A' }}</td>
+                        <td>{{ $exam->location ?? __('messages.not_available_short') }}</td>
                         <td>{{ $exam->max_participants }}</td>
                         <td>
                             <span class="badge bg-info">{{ $exam->registered_count }} / {{ $exam->max_participants }}</span>
@@ -92,7 +92,7 @@
                             <a href="{{ route('admin.exams.registrations', $exam) }}" class="btn btn-sm btn-info" title="{{ __('messages.registrations_for_exam') }}">
                                 <i class="fas fa-list"></i>
                             </a>
-                            <a href="{{ route('admin.exams.examiners', $exam) }}" class="btn btn-sm btn-secondary" title="Gestion des examinateurs">
+                            <a href="{{ route('admin.exams.examiners', $exam) }}" class="btn btn-sm btn-secondary" title="{{ __('messages.examiner_management') }}">
                                 <i class="fas fa-user-check"></i>
                             </a>
                             <a href="{{ route('admin.exams.results', $exam) }}" class="btn btn-sm btn-warning" title="{{ __('messages.enter_results') }}">

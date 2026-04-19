@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'CIAL - ÖSD Examen ')</title>
+    <title>@yield('title', __('messages.app_title'))</title>
     <link rel="icon" type="image/png" href="{{ asset('logo/Logo_icone.png') }}">
     
     <!-- Bootstrap CSS -->
@@ -328,7 +328,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('home') }}">
                 <i class="fas fa-graduation-cap"></i>
-                <span>CIAL - ÖSD Exams</span>
+                <span>{{ __('messages.app_brand') }}</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -421,9 +421,9 @@
                             <i class="fas fa-globe"></i> {{ __('messages.language') }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}" href="?lang=fr"><i class="flag-icon-fr"></i> Français</a></li>
-                            <li><a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}" href="?lang=de"><i class="flag-icon-de"></i> Deutsch</a></li>
-                            <li><a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="?lang=en"><i class="flag-icon-en"></i> English</a></li>
+                            <li><a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}" href="?lang=fr"><i class="flag-icon-fr"></i> {{ __('messages.language_french') }}</a></li>
+                            <li><a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}" href="?lang=de"><i class="flag-icon-de"></i> {{ __('messages.language_german') }}</a></li>
+                            <li><a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="?lang=en"><i class="flag-icon-en"></i> {{ __('messages.language_english') }}</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -473,19 +473,19 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-graduation-cap"></i> ÖSD Exams Management</h5>
-                    <p>Plateforme de gestion complète pour les examens ÖSD (Österreichisches Sprachdiplom)</p>
+                    <h5><i class="fas fa-graduation-cap"></i> {{ __('messages.footer_title') }}</h5>
+                    <p>{{ __('messages.footer_description') }}</p>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h5>Liens rapides</h5>
+                    <h5>{{ __('messages.quick_links') }}</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ route('exams.index') }}" class="text-white-50" style="text-decoration: none;">Examens</a></li>
-                        <li><a href="{{ route('login') }}" class="text-white-50" style="text-decoration: none;">Connexion</a></li>
-                        <li><a href="{{ route('register') }}" class="text-white-50" style="text-decoration: none;">Inscription</a></li>
+                        <li><a href="{{ route('exams.index') }}" class="text-white-50" style="text-decoration: none;">{{ __('messages.exams') }}</a></li>
+                        <li><a href="{{ route('login') }}" class="text-white-50" style="text-decoration: none;">{{ __('messages.login') }}</a></li>
+                        <li><a href="{{ route('register') }}" class="text-white-50" style="text-decoration: none;">{{ __('messages.register') }}</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h5>Contacts</h5>
+                    <h5>{{ __('messages.contacts') }}</h5>
                     <p class="text-white-50 mb-0">
                         <i class="fas fa-envelope"></i> info@examen.cial-de.com<br>
                         <i class="fas fa-phone"></i> +228 90 49 84 87
@@ -494,7 +494,7 @@
             </div>
             <hr class="bg-white-50">
             <div class="text-center text-white-50">
-                <p class="mb-0">&copy; 2026 ÖSD Exams Management. {{ __('messages.all_rights_reserved') }}</p>
+                <p class="mb-0">&copy; 2026 {{ __('messages.footer_title') }}. {{ __('messages.all_rights_reserved') }}</p>
             </div>
         </div>
     </footer>
@@ -512,11 +512,11 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ __('messages.confirm_action') ?? 'Confirmation' }}</h5>
+            <h5 class="modal-title">{{ __('messages.confirm_action') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p id="confirmActionMessage">Are you sure?</p>
+            <p id="confirmActionMessage">{{ __('messages.are_you_sure') }}</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.cancel_btn') }}</button>

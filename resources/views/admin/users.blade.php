@@ -3,9 +3,9 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Gestion des utilisateurs</h1>
+        <h1 class="mb-0">{{ __('messages.user_management') }}</h1>
         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-            Creer un utilisateur admin/examinateur
+            {{ __('messages.create_admin_examiner') }}
         </a>
     </div>
 
@@ -49,10 +49,10 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Actions</th>
+                    <th>{{ __('messages.name') }}</th>
+                    <th>{{ __('messages.email_header') }}</th>
+                    <th>{{ __('messages.role') }}</th>
+                    <th>{{ __('messages.action') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,17 +61,25 @@
                     <td>{{ $user->id }}</td>
                     <td>{{ $user->first_name }} {{ $user->last_name }}</td>
                     <td>{{ $user->email }}</td>
-                    <td>{{ ucfirst($user->role) }}</td>
+                    <td>
+                        @if($user->role === 'student')
+                            {{ __('messages.student_role') }}
+                        @elseif($user->role === 'examiner')
+                            {{ __('messages.examiner_role') }}
+                        @else
+                            {{ __('messages.admin_role') }}
+                        @endif
+                    </td>
                     <td>
                         <form method="POST" action="{{ route('admin.users.update-role', $user) }}" class="d-inline-block">
                             @csrf
                             <div class="input-group">
                                 <select name="role" class="form-select form-select-sm">
-                                    <option value="student" {{ $user->role === 'student' ? 'selected' : '' }}>Student</option>
-                                    <option value="examiner" {{ $user->role === 'examiner' ? 'selected' : '' }}>Examiner</option>
-                                    <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="student" {{ $user->role === 'student' ? 'selected' : '' }}>{{ __('messages.student_role') }}</option>
+                                    <option value="examiner" {{ $user->role === 'examiner' ? 'selected' : '' }}>{{ __('messages.examiner_role') }}</option>
+                                    <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>{{ __('messages.admin_role') }}</option>
                                 </select>
-                                <button class="btn btn-sm btn-primary" type="submit">Mettre à jour</button>
+                                <button class="btn btn-sm btn-primary" type="submit">{{ __('messages.update_button') }}</button>
                             </div>
                         </form>
                     </td>
@@ -90,15 +98,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmAdminModalLabel">Confirmer la promotion</h5>
+                <h5 class="modal-title" id="confirmAdminModalLabel">{{ __('messages.confirm_promotion') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Vous êtes sur le point de promouvoir cet utilisateur au rôle <strong>admin</strong>. Cette action donnera des privilèges d'administration complets. Voulez-vous continuer ?
+                {{ __('messages.confirm_admin_promotion') }}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-danger" id="confirmAdminBtn">Confirmer</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.cancel_btn') }}</button>
+                <button type="button" class="btn btn-danger" id="confirmAdminBtn">{{ __('messages.confirm') }}</button>
             </div>
         </div>
     </div>

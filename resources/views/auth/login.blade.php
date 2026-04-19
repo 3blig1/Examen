@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Connexion - ÖSD Exams')
+@section('title', __('messages.login_page_title'))
 
 @section('content')
 <div class="container py-5">
@@ -37,7 +37,7 @@
                             <div class="input-group">
                                 <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" 
                                        id="password" name="password" required>
-                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="Afficher le mot de passe">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="{{ __('messages.show_password') }}">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                                 @error('password')
@@ -54,7 +54,7 @@
                         </div>
 
                         <div class="mb-4 text-end">
-                            <a href="{{ route('password.request') }}" class="text-decoration-none">Mot de passe oublié ?</a>
+                            <a href="{{ route('password.request') }}" class="text-decoration-none">{{ __('messages.forgot_password') }}</a>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
@@ -79,7 +79,7 @@
                                 @enderror
                             </div>
                             <button type="submit" class="btn btn-outline-primary w-100">
-                                Renvoyer l’email de vérification
+                                {{ __('messages.resend_verification_email') }}
                             </button>
                         </form>
                     @endif

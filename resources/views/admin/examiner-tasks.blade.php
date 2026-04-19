@@ -142,7 +142,7 @@
                                                 <span class="badge bg-light text-dark me-1">{{ $module }}</span>
                                             @endforeach
                                         @else
-                                            <span class="text-muted">-</span>
+                                            <span class="text-muted">{{ __('messages.not_available_short') }}</span>
                                         @endif
                                     </td>
                                 </tr>

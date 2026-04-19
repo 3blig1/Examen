@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mot de passe oublié - ÖSD Exams')
+@section('title', __('messages.forgot_password_page_title'))
 
 @section('content')
 <div class="container py-5">
@@ -9,7 +9,7 @@
             <div class="card shadow-lg">
                 <div class="card-header text-center py-4">
                     <h3 class="mb-0">
-                        <i class="fas fa-key"></i> Mot de passe oublié
+                        <i class="fas fa-key"></i> {{ __('messages.forgot_password') }}
                     </h3>
                 </div>
                 <div class="card-body p-5">
@@ -32,11 +32,11 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                            Envoyer le lien de réinitialisation
+                            {{ __('messages.send_reset_link') }}
                         </button>
 
                         <p class="text-center text-muted mb-0">
-                            <a href="{{ route('login') }}" class="text-primary fw-bold">Retour à la connexion</a>
+                            <a href="{{ route('login') }}" class="text-primary fw-bold">{{ __('messages.back_to_login') }}</a>
                         </p>
                     </form>
                 </div>

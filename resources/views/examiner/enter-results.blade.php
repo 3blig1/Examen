@@ -35,7 +35,7 @@
                         <td>
                             @if($registration->result)
                                 <span class="badge {{ $registration->result->isPassed() ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($registration->result->status) }}
+                                    {{ $registration->result->isPassed() ? __('messages.passed') : __('messages.failed') }}
                                 </span>
                             @else
                                 <span class="badge bg-warning text-dark">{{ __('messages.pending') }}</span>

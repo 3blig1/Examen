@@ -59,7 +59,7 @@
                     <tr>
                         <td>{{ $log->user?->first_name }} {{ $log->user?->last_name }}</td>
                         <td>{{ $log->action }}</td>
-                        <td>{{ $log->description ?? '-' }}</td>
+                        <td>{{ $log->description ?? __('messages.not_available_short') }}</td>
                         <td>{{ $log->created_at?->format('d/m/Y H:i') }}</td>
                     </tr>
                     @empty

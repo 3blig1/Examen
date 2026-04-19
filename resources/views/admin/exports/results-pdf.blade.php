@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <title>{{ __('messages.results_for_exam') }}</title>
@@ -30,9 +30,15 @@
             <tr>
                 <td>{{ $registration->user->first_name }} {{ $registration->user->last_name }}</td>
                 <td>{{ $registration->user->email }}</td>
-                <td>{{ $registration->result?->level_achieved ?? 'N/A' }}</td>
-                <td>{{ $registration->result?->total_score ?? '-' }}</td>
-                <td>{{ $registration->result?->status ?? 'pending' }}</td>
+                <td>{{ $registration->result?->level_achieved ?? __('messages.not_available_short') }}</td>
+                <td>{{ $registration->result?->total_score ?? __('messages.not_available_short') }}</td>
+                <td>
+                    @if($registration->result)
+                        {{ $registration->result->isPassed() ? __('messages.passed') : __('messages.failed') }}
+                    @else
+                        {{ __('messages.pending') }}
+                    @endif
+                </td>
                 <td>{{ $registration->result?->published_at?->format('d/m/Y H:i') ?? '' }}</td>
             </tr>
             @endforeach

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de bord Admin - ÖSD Exams')
+@section('title', __('messages.admin_dashboard_title'))
 
 @section('content')
 <div class="hero" style="padding: 40px 0;">
@@ -88,12 +88,12 @@
                                 <td>{{ $registration->exam->name }}</td>
                                 <td>
                                     <span class="badge badge-status-{{ $registration->status }}">
-                                        {{ ucfirst($registration->status) }}
+                                        {{ __('messages.status_' . $registration->status) }}
                                     </span>
                                 </td>
                                 <td>
                                     <span class="badge {{ $registration->payment_status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                        {{ ucfirst($registration->payment_status) }}
+                                        {{ $registration->payment_status === 'paid' ? __('messages.paid') : __('messages.pending') }}
                                     </span>
                                 </td>
                                 <td>{{ $registration->created_at->format('d/m/Y') }}</td>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Examens disponibles - ÖSD Exams')
+@section('title', __('messages.exams_index_title'))
 
 @section('content')
 <div class="hero">
@@ -30,7 +30,7 @@
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-map-marker-alt text-primary"></i>
-                            {{ $exam->location ?? __('messages.location_to_define') }}
+                            {{ $exam->location ?? __('messages.location_to_be_defined') }}
                         </p>
                         <p class="mb-0">
                             <i class="fas fa-euro-sign text-success"></i>

@@ -65,7 +65,7 @@
                     <tr>
                         <td><strong>{{ $exam->name }}</strong></td>
                         <td>{{ $exam->date->format('d/m/Y H:i') }}</td>
-                        <td>{{ $exam->location ?? 'N/A' }}</td>
+                        <td>{{ $exam->location ?? __('messages.not_available_short') }}</td>
                         <td>
                             <span class="badge badge-status-{{ $exam->status }}">
                                 {{ __('messages.status_' . $exam->status) }}

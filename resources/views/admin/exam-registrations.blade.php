@@ -66,12 +66,12 @@
                         <td>{{ $registration->user->country }}</td>
                         <td>
                             <span class="badge badge-status-{{ $registration->status }}">
-                                {{ ucfirst($registration->status) }}
+                                {{ __('messages.status_' . $registration->status) }}
                             </span>
                         </td>
                         <td>
                             <span class="badge {{ $registration->payment_status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                {{ ucfirst($registration->payment_status) }}
+                                {{ $registration->payment_status === 'paid' ? __('messages.paid') : __('messages.pending') }}
                             </span>
                         </td>
                         <td>{{ $registration->created_at->format('d/m/Y H:i') }}</td>

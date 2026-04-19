@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de bord - ÖSD Exams')
+@section('title', __('messages.student_dashboard_title'))
 
 @section('content')
 <div class="container py-5">
@@ -53,7 +53,7 @@
                     <tr>
                         <td><strong>{{ $exam->name }}</strong></td>
                         <td>{{ $exam->date->format('d/m/Y H:i') }}</td>
-                        <td>{{ $exam->location ?? 'N/A' }}</td>
+                        <td>{{ $exam->location ?? __('messages.not_available_short') }}</td>
                         <td>
                             <span class="badge bg-info">{{ $exam->available_spots }} / {{ $exam->max_participants }}</span>
                         </td>
@@ -75,16 +75,16 @@
     @if(!empty($bankInfo['name']) || !empty($bankInfo['iban']) || !empty($bankInfo['account_number']))
     <div class="card mb-5">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-university"></i> Informations bancaires</h5>
+            <h5 class="mb-0"><i class="fas fa-university"></i> {{ __('messages.bank_info') }}</h5>
         </div>
         <div class="card-body">
             <ul class="list-unstyled mb-0">
-                <li><strong>Banque :</strong> {{ $bankInfo['name'] ?? '—' }}</li>
-                <li><strong>Nom du compte :</strong> {{ $bankInfo['account_name'] ?? '—' }}</li>
-                <li><strong>IBAN :</strong> {{ $bankInfo['iban'] ?? '—' }}</li>
-                <li><strong>BIC / SWIFT :</strong> {{ $bankInfo['bic'] ?? '—' }}</li>
-                <li><strong>Numéro de compte :</strong> {{ $bankInfo['account_number'] ?? '—' }}</li>
-                <li><strong>Adresse :</strong> {{ $bankInfo['address'] ?? '—' }}</li>
+                <li><strong>{{ __('messages.bank_name') }}:</strong> {{ $bankInfo['name'] ?? __('messages.not_available_short') }}</li>
+                <li><strong>{{ __('messages.bank_account_name') }}:</strong> {{ $bankInfo['account_name'] ?? __('messages.not_available_short') }}</li>
+                <li><strong>{{ __('messages.bank_iban') }}:</strong> {{ $bankInfo['iban'] ?? __('messages.not_available_short') }}</li>
+                <li><strong>{{ __('messages.bank_bic') }}:</strong> {{ $bankInfo['bic'] ?? __('messages.not_available_short') }}</li>
+                <li><strong>{{ __('messages.bank_account_number') }}:</strong> {{ $bankInfo['account_number'] ?? __('messages.not_available_short') }}</li>
+                <li><strong>{{ __('messages.bank_address') }}:</strong> {{ $bankInfo['address'] ?? __('messages.not_available_short') }}</li>
             </ul>
             @if(!empty($bankInfo['note']))
                 <div class="mt-3 text-muted">{{ $bankInfo['note'] }}</div>
@@ -116,7 +116,7 @@
                     <tr>
                         <td>
                             <strong>{{ $registration->exam->name }}</strong><br>
-                            <small class="text-muted">{{ $registration->exam->location ?? 'N/A' }}</small>
+                            <small class="text-muted">{{ $registration->exam->location ?? __('messages.not_available_short') }}</small>
                         </td>
                         <td>{{ $registration->exam->date->format('d/m/Y H:i') }}</td>
                         <td>

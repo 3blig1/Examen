@@ -49,7 +49,7 @@
     @if($totalsByExam->isNotEmpty())
     <div class="card mb-4">
         <div class="card-header">
-            <strong>Total des montants par examen</strong>
+            <strong>{{ __('messages.totals_by_exam') }}</strong>
         </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -90,10 +90,10 @@
                     @forelse($payments as $payment)
                     <tr>
                         <td>{{ $payment->user?->first_name }} {{ $payment->user?->last_name }}</td>
-                        <td>{{ $payment->registration?->exam?->name ?? 'N/A' }}</td>
+                        <td>{{ $payment->registration?->exam?->name ?? __('messages.not_available_short') }}</td>
                         <td>{{ number_format($payment->amount, 2) }}€</td>
-                        <td>{{ ucfirst($payment->status) }}</td>
-                        <td>{{ $payment->paid_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                        <td>{{ $payment->status === 'confirmed' ? __('messages.confirmed') : __('messages.pending') }}</td>
+                        <td>{{ $payment->paid_at?->format('d/m/Y H:i') ?? __('messages.not_available_short') }}</td>
                     </tr>
                     @empty
                     <tr>

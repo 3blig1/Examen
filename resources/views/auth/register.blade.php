@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inscription - ÖSD Exams')
+@section('title', __('messages.register_page_title'))
 
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/css/intlTelInput.css" rel="stylesheet">
@@ -33,13 +33,13 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="title" class="form-label">Titre</label>
+                            <label for="title" class="form-label">{{ __('messages.title') }}</label>
                             <select class="form-select @error('title') is-invalid @enderror" id="title" name="title" required>
-                                <option value="">Selectionner</option>
-                                <option value="mr" {{ old('title') === 'mr' ? 'selected' : '' }}>M.</option>
-                                <option value="mme" {{ old('title') === 'mme' ? 'selected' : '' }}>Mme</option>
-                                <option value="mlle" {{ old('title') === 'mlle' ? 'selected' : '' }}>Mlle</option>
-                                <option value="dr" {{ old('title') === 'dr' ? 'selected' : '' }}>Dr</option>
+                                <option value="">{{ __('messages.select_option') }}</option>
+                                <option value="mr" {{ old('title') === 'mr' ? 'selected' : '' }}>{{ __('messages.title_mr') }}</option>
+                                <option value="mme" {{ old('title') === 'mme' ? 'selected' : '' }}>{{ __('messages.title_mme') }}</option>
+                                <option value="mlle" {{ old('title') === 'mlle' ? 'selected' : '' }}>{{ __('messages.title_mlle') }}</option>
+                                <option value="dr" {{ old('title') === 'dr' ? 'selected' : '' }}>{{ __('messages.title_dr') }}</option>
                             </select>
                             @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -67,12 +67,12 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="sex" class="form-label">Sexe</label>
+                                <label for="sex" class="form-label">{{ __('messages.sex') }}</label>
                                 <select class="form-select @error('sex') is-invalid @enderror" id="sex" name="sex" required>
-                                    <option value="">Selectionner</option>
-                                    <option value="male" {{ old('sex') === 'male' ? 'selected' : '' }}>Homme</option>
-                                    <option value="female" {{ old('sex') === 'female' ? 'selected' : '' }}>Femme</option>
-                                    <option value="other" {{ old('sex') === 'other' ? 'selected' : '' }}>Autre</option>
+                                    <option value="">{{ __('messages.select_option') }}</option>
+                                    <option value="male" {{ old('sex') === 'male' ? 'selected' : '' }}>{{ __('messages.sex_male') }}</option>
+                                    <option value="female" {{ old('sex') === 'female' ? 'selected' : '' }}>{{ __('messages.sex_female') }}</option>
+                                    <option value="other" {{ old('sex') === 'other' ? 'selected' : '' }}>{{ __('messages.sex_other') }}</option>
                                 </select>
                                 @error('sex')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -90,7 +90,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="birth_place" class="form-label">Lieu de naissance</label>
+                                <label for="birth_place" class="form-label">{{ __('messages.birth_place') }}</label>
                                 <input type="text" class="form-control @error('birth_place') is-invalid @enderror"
                                        id="birth_place" name="birth_place" value="{{ old('birth_place') }}" required>
                                 @error('birth_place')
@@ -98,7 +98,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="birth_country" class="form-label">Pays de naissance</label>
+                                <label for="birth_country" class="form-label">{{ __('messages.birth_country') }}</label>
                                 <input type="text" class="form-control @error('birth_country') is-invalid @enderror"
                                        id="birth_country" name="birth_country" value="{{ old('birth_country') }}" required>
                                 @error('birth_country')
@@ -108,7 +108,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="nationality" class="form-label">Nationalite</label>
+                            <label for="nationality" class="form-label">{{ __('messages.nationality') }}</label>
                             <input type="text" class="form-control @error('nationality') is-invalid @enderror"
                                    id="nationality" name="nationality" value="{{ old('nationality') }}" required>
                             @error('nationality')
@@ -146,7 +146,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="address" class="form-label">Adresse du domicile ou du lieu de sejour</label>
+                            <label for="address" class="form-label">{{ __('messages.address') }}</label>
                             <input type="text" class="form-control @error('address') is-invalid @enderror"
                                    id="address" name="address" value="{{ old('address') }}" required>
                             @error('address')
@@ -159,14 +159,14 @@
                             <div class="input-group">
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                        id="password" name="password" required minlength="8">
-                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="Afficher le mot de passe">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password" aria-label="{{ __('messages.show_password') }}">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <small class="form-text text-muted">Au minimum 8 caractères</small>
+                            <small class="form-text text-muted">{{ __('messages.password_min_hint') }}</small>
                         </div>
 
                         <div class="mb-4">
@@ -174,7 +174,7 @@
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password_confirmation" 
                                        name="password_confirmation" required minlength="8">
-                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password_confirmation" aria-label="Afficher le mot de passe">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle-password data-target="password_confirmation" aria-label="{{ __('messages.show_password') }}">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>

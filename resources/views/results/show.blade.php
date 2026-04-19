@@ -41,7 +41,7 @@
 								$showAllModules = empty($selectedModules);
 							@endphp
 							<div class="mb-3">
-								<h5 class="mb-0">{{ __('messages.module_scores') ?? 'Module Scores' }}</h5>
+								<h5 class="mb-0">{{ __('messages.module_scores') }}</h5>
 							</div>
 
 							@if($showAllModules || in_array('reading', $selectedModules, true))
