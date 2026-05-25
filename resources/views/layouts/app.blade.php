@@ -487,8 +487,8 @@
                 <div class="col-md-4 mb-4">
                     <h5>{{ __('messages.contacts') }}</h5>
                     <p class="text-white-50 mb-0">
-                        <i class="fas fa-envelope"></i> info@examen.cial-de.com<br>
-                        <i class="fas fa-phone"></i> +228 90 49 84 87
+                        <i class="fas fa-envelope"></i> info@examenosd.cial-de.com<br>
+                        <i class="fas fa-phone"></i> +228 90 33 32 32
                     </p>
                 </div>
             </div>
