@@ -88,6 +88,7 @@ return [
     'nationality' => 'Nationality',
     'address' => 'Home or residence address',
     'show_password' => 'Show password',
+    'privacy_consent' => 'I accept the <a href="https://osd.at/datenschutz/" target="_blank" rel="noopener noreferrer">privacy policy</a> and confirm that my data will be used in accordance with it.',
     'role' => 'Role',
     'send_credentials_label' => 'Send credentials by email',
     'send_credentials_help' => 'Sends the verification email with the login email and password.',

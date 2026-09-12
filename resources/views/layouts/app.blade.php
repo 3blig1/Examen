@@ -56,6 +56,16 @@
             gap: 10px;
         }
 
+        .navbar-brand-logo {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 10px;
+            padding: 6px;
+            object-fit: contain;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
         .navbar-brand i {
             font-size: 2rem;
         }
@@ -332,7 +342,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="fas fa-graduation-cap"></i>
+                <img src="{{ asset('logo/Logo_icone.png') }}" alt="Logo" class="navbar-brand-logo">
                 <span>{{ __('messages.app_brand') }}</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

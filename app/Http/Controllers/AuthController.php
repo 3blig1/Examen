@@ -41,6 +41,7 @@ class AuthController extends Controller
             'nationality' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'password' => 'required|min:8|confirmed',
+            'privacy_consent' => 'required|accepted',
         ]);
 
         $user = User::create([

@@ -88,6 +88,7 @@ return [
     'nationality' => 'Nationalité',
     'address' => 'Adresse du domicile ou du lieu de séjour',
     'show_password' => 'Afficher le mot de passe',
+    'privacy_consent' => 'J’accepte la <a href="https://osd.at/datenschutz/" target="_blank" rel="noopener noreferrer">politique de confidentialité</a> et je confirme que mes données seront utilisées conformément à celle-ci.',
     'role' => 'Rôle',
     'send_credentials_label' => 'Envoyer les identifiants par email',
     'send_credentials_help' => 'Enverra l’email de vérification avec l’adresse email et le mot de passe.',

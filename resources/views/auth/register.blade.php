@@ -180,6 +180,16 @@
                             </div>
                         </div>
 
+                        <div class="form-check mb-4 @error('privacy_consent') is-invalid @enderror">
+                            <input class="form-check-input @error('privacy_consent') is-invalid @enderror" type="checkbox" value="1" id="privacy_consent" name="privacy_consent" required>
+                            <label class="form-check-label" for="privacy_consent">
+                                {!! __('messages.privacy_consent') !!}
+                            </label>
+                            @error('privacy_consent')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
                             <i class="fas fa-user-plus"></i> {{ __('messages.register') }}
                         </button>

@@ -88,6 +88,7 @@ return [
     'nationality' => 'Staatsangehörigkeit',
     'address' => 'Adresse des Wohn- oder Aufenthaltsortes',
     'show_password' => 'Passwort anzeigen',
+    'privacy_consent' => 'Ich akzeptiere die <a href="https://osd.at/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> und bestätige, dass meine Daten entsprechend verwendet werden.',
     'role' => 'Rolle',
     'send_credentials_label' => 'Zugangsdaten per E-Mail senden',
     'send_credentials_help' => 'Sendet die Bestaetigungs-E-Mail mit E-Mail-Adresse und Passwort.',
