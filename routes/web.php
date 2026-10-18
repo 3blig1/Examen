@@ -90,6 +90,7 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
     Route::post('/users/{user}/manage-users-permission', [AdminController::class, 'updateManageUsersPermission'])->name('users.manage-permission');
     Route::post('/users/{user}/deactivate', [AdminController::class, 'deactivateUser'])->name('users.deactivate');
     Route::post('/users/{user}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
+    Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
     Route::post('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.update-role');
     Route::post('/users/super-admin/reset-password', [AdminController::class, 'resetSuperAdminPassword'])->name('users.reset-super-admin-password');
     Route::get('/payments', [AdminController::class, 'paymentHistory'])->name('payments.history');

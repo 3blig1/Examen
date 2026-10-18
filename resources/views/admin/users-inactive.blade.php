@@ -100,6 +100,15 @@
                                     {{ __('messages.activate') }}
                                 </button>
                             </form>
+                            @if(auth()->id() !== $user->id)
+                                <form method="POST" action="{{ route('admin.users.delete', $user) }}" class="d-inline-block ms-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-sm btn-danger confirm-action" data-confirm-message="{{ __('messages.confirm_delete_user') }}">
+                                        {{ __('messages.delete') }}
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </td>
                 </tr>

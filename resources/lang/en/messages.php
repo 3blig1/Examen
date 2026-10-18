@@ -140,6 +140,7 @@ return [
     'user_delete_has_records' => 'Cannot delete this user because related data exists.',
     'error_occurred' => 'An error occurred',
     'confirm_delete' => 'Are you sure you want to delete?',
+    'confirm_delete_user' => 'Are you sure you want to permanently delete this user? All their data (registrations, results, payments) will be deleted.',
     'confirm_deactivate' => 'Are you sure you want to deactivate this user?',
     'confirm_activate' => 'Are you sure you want to activate this user?',
     'deactivate' => 'Deactivate',

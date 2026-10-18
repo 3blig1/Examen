@@ -140,6 +140,7 @@ return [
     'user_delete_has_records' => 'Dieser Benutzer kann nicht geloescht werden, da verknuepfte Daten vorhanden sind.',
     'error_occurred' => 'Ein Fehler ist aufgetreten',
     'confirm_delete' => 'Sind Sie sicher, dass Sie löschen möchten?',
+    'confirm_delete_user' => 'Moechten Sie diesen Benutzer wirklich endgültig löschen? Alle seine Daten (Anmeldungen, Ergebnisse, Zahlungen) werden gelöscht.',
     'confirm_deactivate' => 'Moechten Sie diesen Benutzer wirklich deaktivieren?',
     'confirm_activate' => 'Moechten Sie diesen Benutzer wirklich aktivieren?',
     'deactivate' => 'Deaktivieren',

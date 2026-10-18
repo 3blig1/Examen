@@ -940,6 +940,38 @@ class AdminController extends Controller
     }
 
     /**
+     * Delete a user permanently (with related data)
+     */
+    public function deleteUser(User $user)
+    {
+        if (!auth()->user()->canManageUsers()) {
+            return back()->with('error', __('messages.user_manage_permission_required'));
+        }
+
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', __('messages.user_delete_super_admin_forbidden'));
+        }
+
+        if (auth()->id() === $user->id) {
+            return back()->with('error', __('messages.user_delete_self_forbidden'));
+        }
+
+        $this->logActivity('user_deleted', User::class, $user->id, "User deleted: {$user->email}");
+
+        DB::transaction(function () use ($user) {
+            ExamResult::where('user_id', $user->id)->delete();
+            ExamRegistration::where('user_id', $user->id)->delete();
+            PaymentHistory::where('user_id', $user->id)->delete();
+            EmailVerification::where('user_id', $user->id)->delete();
+            ExamExaminerAssignment::where('examiner_id', $user->id)->delete();
+            ActivityLog::where('user_id', $user->id)->delete();
+            $user->delete();
+        });
+
+        return back()->with('success', __('messages.user_delete_success'));
+    }
+
+    /**
      * Allow an admin to manage users (super admin only)
      */
     public function updateManageUsersPermission(Request $request, User $user)

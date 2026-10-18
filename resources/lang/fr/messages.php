@@ -140,6 +140,7 @@ return [
     'user_delete_has_records' => 'Impossible de supprimer cet utilisateur car il possède des données liées.',
     'error_occurred' => 'Une erreur s\'est produite',
     'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer ?',
+    'confirm_delete_user' => 'Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ? Toutes ses données (inscriptions, résultats, paiements) seront supprimées.',
     'confirm_deactivate' => 'Êtes-vous sûr de vouloir désactiver cet utilisateur ?',
     'confirm_activate' => 'Êtes-vous sûr de vouloir activer cet utilisateur ?',
     'deactivate' => 'Désactiver',
