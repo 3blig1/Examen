@@ -72,7 +72,11 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
     Route::get('/exams/{exam}/examiners', [AdminController::class, 'manageExaminerAssignments'])->name('exams.examiners');
     Route::post('/exams/{exam}/examiners', [AdminController::class, 'storeExaminerAssignments'])->name('exams.examiners.store');
     Route::post('/registrations/{registration}/confirm', [AdminController::class, 'confirmRegistration'])->name('registrations.confirm');
+    Route::post('/registrations/{registration}/restore-confirmed-unpaid', [AdminController::class, 'restoreConfirmedUnpaidRegistration'])->name('registrations.restore-confirmed-unpaid');
+    Route::post('/registrations/{registration}/restore-paid', [AdminController::class, 'restorePaidRegistration'])->name('registrations.restore-paid');
+    Route::post('/registrations/{registration}/undo-payment-confirmation', [AdminController::class, 'undoPaymentConfirmation'])->name('registrations.undo-payment-confirmation');
     Route::post('/registrations/{registration}/reject', [AdminController::class, 'rejectRegistration'])->name('registrations.reject');
+    Route::delete('/registrations/{registration}', [AdminController::class, 'deleteRegistration'])->name('registrations.delete');
     
     Route::get('/exams/{exam}/results', [AdminController::class, 'enterResults'])->name('exams.results');
     Route::get('/exams/{exam}/results-view', [AdminController::class, 'examResults'])->name('exams.results-view');

@@ -16,14 +16,16 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ExamRegistrationsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
 {
     private int $examId;
+    private ?string $filter;
     /** @var string[] */
     private array $writtenExaminers = [];
     /** @var string[] */
     private array $oralExaminers = [];
 
-    public function __construct(int $examId)
+    public function __construct(int $examId, ?string $filter = null)
     {
         $this->examId = $examId;
+        $this->filter = in_array($filter, ['paid', 'unpaid', 'cancelled', 'osd'], true) ? $filter : null;
         $this->loadExaminerAssignments();
     }
 
@@ -66,6 +68,24 @@ class ExamRegistrationsExport implements FromCollection, WithHeadings, WithMappi
     public function collection()
     {
         return ExamRegistration::where('exam_id', $this->examId)
+            ->when($this->filter === 'cancelled', function ($query) {
+                $query->where('status', 'cancelled');
+            })
+            ->when($this->filter === 'paid', function ($query) {
+                $query->where('payment_status', 'paid');
+            })
+            ->when($this->filter === 'unpaid', function ($query) {
+                $query->where('status', 'pending')->where('payment_status', 'unpaid');
+            })
+            ->when($this->filter === 'osd', function ($query) {
+                $query->where(function ($query) {
+                    $query->where('payment_status', 'paid')
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->where('status', 'confirmed')
+                                ->where('payment_status', 'unpaid');
+                        });
+                });
+            })
             ->with(['user', 'exam', 'result'])
             ->get();
     }

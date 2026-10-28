@@ -99,7 +99,12 @@ class ExamController extends Controller
         // Increment registered count
         $exam->increment('registered_count');
 
-        Mail::to($user->email)->send(new PaymentInstructionsMail($user, $exam, $amount));
+        Mail::to($user->email)->send(new PaymentInstructionsMail(
+            $user,
+            $exam,
+            $amount,
+            $validated['selected_modules']
+        ));
 
         return back()->with('success', 'Registration successful! Please complete your payment.');
     }

@@ -207,13 +207,53 @@ class AdminController extends Controller
      */
     public function examRegistrations(Exam $exam)
     {
-        $registrations = ExamRegistration::where('exam_id', $exam->id)
+        $filter = request()->query('filter');
+        if (!in_array($filter, ['paid', 'unpaid', 'cancelled', 'osd'], true)) {
+            $filter = null;
+        }
+
+        $query = ExamRegistration::where('exam_id', $exam->id);
+        $paymentCounts = [
+            'paid' => (clone $query)->where('payment_status', 'paid')->count(),
+            'unpaid' => (clone $query)->where('status', 'pending')->where('payment_status', 'unpaid')->count(),
+            'cancelled' => (clone $query)->where('status', 'cancelled')->count(),
+            'osd' => (clone $query)->where(function ($query) {
+                $query->where('payment_status', 'paid')
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->where('status', 'confirmed')
+                            ->where('payment_status', 'unpaid');
+                    });
+            })->count(),
+        ];
+
+        $registrations = (clone $query)
+            ->when($filter === 'cancelled', function ($query) {
+                $query->where('status', 'cancelled');
+            })
+            ->when($filter === 'paid', function ($query) {
+                $query->where('payment_status', 'paid');
+            })
+            ->when($filter === 'unpaid', function ($query) {
+                $query->where('status', 'pending')->where('payment_status', 'unpaid');
+            })
+            ->when($filter === 'osd', function ($query) {
+                $query->where(function ($query) {
+                    $query->where('payment_status', 'paid')
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->where('status', 'confirmed')
+                                ->where('payment_status', 'unpaid');
+                        });
+                });
+            })
             ->with('user')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('admin.exam-registrations', [
             'exam' => $exam,
             'registrations' => $registrations,
+            'filter' => $filter,
+            'paymentCounts' => $paymentCounts,
         ]);
     }
 
@@ -364,22 +404,214 @@ class AdminController extends Controller
      */
     public function confirmRegistration(ExamRegistration $registration)
     {
-        $registration->confirm();
+        $confirmationResult = DB::transaction(function () use ($registration) {
+            $lockedRegistration = ExamRegistration::whereKey($registration->id)->lockForUpdate()->firstOrFail();
+            if ($lockedRegistration->payment_status === 'paid') {
+                return 'already_paid';
+            }
+            if (in_array($lockedRegistration->status, ['cancelled', 'completed'], true)) {
+                return 'inactive';
+            }
 
-        PaymentHistory::create([
-            'exam_registration_id' => $registration->id,
-            'user_id' => $registration->user_id,
-            'amount' => $registration->amount_paid ?? 0,
-            'method' => 'manual',
-            'status' => 'confirmed',
-            'paid_at' => now(),
-        ]);
+            $lockedRegistration->confirm();
+
+            PaymentHistory::create([
+                'exam_registration_id' => $lockedRegistration->id,
+                'user_id' => $lockedRegistration->user_id,
+                'amount' => $lockedRegistration->amount_paid ?? 0,
+                'method' => 'manual',
+                'status' => 'confirmed',
+                'paid_at' => now(),
+            ]);
+
+            return 'confirmed';
+        });
+
+        if ($confirmationResult !== 'confirmed') {
+            return back()->with('error', $confirmationResult === 'already_paid'
+                ? __('messages.payment_already_confirmed')
+                : __('messages.cannot_confirm_inactive_registration'));
+        }
+
+        $registration->refresh();
 
         $this->logActivity('payment_confirmed', ExamRegistration::class, $registration->id, "Payment confirmed for registration #{$registration->id}");
 
         Mail::to($registration->user->email)->send(new PaymentConfirmed($registration));
 
-        return back()->with('success', 'Registration confirmed');
+        return back()->with('success', __('messages.payment_confirmation_recorded'));
+    }
+
+    /**
+     * Restore a cancelled registration when payment was actually received.
+     */
+    public function restorePaidRegistration(ExamRegistration $registration)
+    {
+        Exam::refreshStatuses();
+
+        $restoreResult = DB::transaction(function () use ($registration) {
+            $lockedRegistration = ExamRegistration::whereKey($registration->id)->lockForUpdate()->firstOrFail();
+            $exam = Exam::whereKey($lockedRegistration->exam_id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedRegistration->status !== 'cancelled' || $lockedRegistration->payment_status === 'paid') {
+                return 'invalid';
+            }
+            if ($exam->status === 'completed') {
+                return 'completed';
+            }
+            if ($exam->registered_count >= $exam->max_participants) {
+                return 'full';
+            }
+
+            $lockedRegistration->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+                'payment_date' => now(),
+                'confirmed_at' => now(),
+            ]);
+            $exam->increment('registered_count');
+
+            $hasConfirmedPayment = PaymentHistory::where('exam_registration_id', $lockedRegistration->id)
+                ->where('status', 'confirmed')
+                ->exists();
+
+            if (!$hasConfirmedPayment) {
+                PaymentHistory::create([
+                    'exam_registration_id' => $lockedRegistration->id,
+                    'user_id' => $lockedRegistration->user_id,
+                    'amount' => $lockedRegistration->amount_paid ?? 0,
+                    'method' => 'manual',
+                    'status' => 'confirmed',
+                    'paid_at' => now(),
+                    'notes' => 'Candidature rétablie après vérification du paiement reçu.',
+                ]);
+            }
+
+            $this->logActivity(
+                'cancelled_registration_restored_paid',
+                ExamRegistration::class,
+                $lockedRegistration->id,
+                "Cancelled registration restored as paid #{$lockedRegistration->id}"
+            );
+
+            return 'restored';
+        });
+
+        if ($restoreResult !== 'restored') {
+            $message = match ($restoreResult) {
+                'full' => __('messages.cannot_restore_exam_full'),
+                'completed' => __('messages.cannot_restore_completed_exam'),
+                default => __('messages.cannot_restore_registration'),
+            };
+
+            return back()->with('error', $message);
+        }
+
+        $registration->refresh();
+        Mail::to($registration->user->email)->send(new PaymentConfirmed($registration));
+
+        return back()->with('success', __('messages.cancelled_registration_restored'));
+    }
+
+    /**
+     * Restore a cancelled registration as confirmed without confirming payment.
+     */
+    public function restoreConfirmedUnpaidRegistration(ExamRegistration $registration)
+    {
+        Exam::refreshStatuses();
+
+        $restoreResult = DB::transaction(function () use ($registration) {
+            $lockedRegistration = ExamRegistration::whereKey($registration->id)->lockForUpdate()->firstOrFail();
+            $exam = Exam::whereKey($lockedRegistration->exam_id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedRegistration->status !== 'cancelled' || $lockedRegistration->payment_status === 'paid') {
+                return 'invalid';
+            }
+            if ($exam->status === 'completed') {
+                return 'completed';
+            }
+            if ($exam->registered_count >= $exam->max_participants) {
+                return 'full';
+            }
+
+            $lockedRegistration->update([
+                'status' => 'confirmed',
+                'payment_status' => 'unpaid',
+                'payment_date' => null,
+                'confirmed_at' => now(),
+            ]);
+            $exam->increment('registered_count');
+
+            $this->logActivity(
+                'cancelled_registration_restored_unpaid',
+                ExamRegistration::class,
+                $lockedRegistration->id,
+                "Cancelled registration restored as confirmed, unpaid #{$lockedRegistration->id}"
+            );
+
+            return 'restored';
+        });
+
+        if ($restoreResult !== 'restored') {
+            $message = match ($restoreResult) {
+                'full' => __('messages.cannot_restore_exam_full'),
+                'completed' => __('messages.cannot_restore_completed_exam'),
+                default => __('messages.cannot_restore_registration'),
+            };
+
+            return back()->with('error', $message);
+        }
+
+        return back()->with('success', __('messages.cancelled_registration_restored_unpaid'));
+    }
+
+    /**
+     * Undo an accidental payment confirmation while keeping an audit trail.
+     */
+    public function undoPaymentConfirmation(ExamRegistration $registration)
+    {
+        if ($registration->payment_status !== 'paid') {
+            return back()->with('error', __('messages.payment_not_confirmed'));
+        }
+
+        if ($registration->status === 'completed') {
+            return back()->with('error', __('messages.cannot_undo_completed_payment'));
+        }
+
+        DB::transaction(function () use ($registration) {
+            $lockedRegistration = ExamRegistration::whereKey($registration->id)->lockForUpdate()->firstOrFail();
+            if ($lockedRegistration->payment_status !== 'paid') {
+                return;
+            }
+
+            $lockedRegistration->update([
+                'payment_status' => 'unpaid',
+                'status' => 'pending',
+                'payment_date' => null,
+                'confirmed_at' => null,
+            ]);
+
+            $payment = PaymentHistory::where('exam_registration_id', $lockedRegistration->id)
+                ->where('status', 'confirmed')
+                ->latest('paid_at')
+                ->first();
+
+            if ($payment) {
+                $payment->update([
+                    'status' => 'reversed',
+                    'notes' => trim(($payment->notes ? $payment->notes . "\n" : '') . 'Confirmation annulée par erreur administrative.'),
+                ]);
+            }
+
+            $this->logActivity(
+                'payment_confirmation_undone',
+                ExamRegistration::class,
+                $lockedRegistration->id,
+                "Payment confirmation undone for registration #{$lockedRegistration->id}"
+            );
+        });
+
+        return back()->with('success', __('messages.payment_confirmation_undone'));
     }
 
     /**
@@ -398,6 +630,31 @@ class AdminController extends Controller
         Mail::to($registration->user->email)->send(new RegistrationCancelled($registration));
 
         return back()->with('success', 'Registration rejected');
+    }
+
+    /**
+     * Permanently delete an exam registration.
+     */
+    public function deleteRegistration(ExamRegistration $registration)
+    {
+        DB::transaction(function () use ($registration) {
+            $exam = Exam::whereKey($registration->exam_id)->lockForUpdate()->firstOrFail();
+
+            $this->logActivity(
+                'registration_deleted',
+                ExamRegistration::class,
+                $registration->id,
+                "Registration deleted #{$registration->id} for exam {$exam->name}"
+            );
+
+            if ($registration->status !== 'cancelled' && $exam->registered_count > 0) {
+                $exam->decrement('registered_count');
+            }
+
+            $registration->delete();
+        });
+
+        return back()->with('success', 'Registration deleted successfully');
     }
 
     /**
@@ -481,7 +738,30 @@ class AdminController extends Controller
      */
     public function exportRegistrationsPdf(Exam $exam)
     {
+        $filter = request()->query('filter');
+        if (!in_array($filter, ['paid', 'unpaid', 'cancelled', 'osd'], true)) {
+            $filter = null;
+        }
+
         $registrations = ExamRegistration::where('exam_id', $exam->id)
+            ->when($filter === 'cancelled', function ($query) {
+                $query->where('status', 'cancelled');
+            })
+            ->when($filter === 'paid', function ($query) {
+                $query->where('payment_status', 'paid');
+            })
+            ->when($filter === 'unpaid', function ($query) {
+                $query->where('status', 'pending')->where('payment_status', 'unpaid');
+            })
+            ->when($filter === 'osd', function ($query) {
+                $query->where(function ($query) {
+                    $query->where('payment_status', 'paid')
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->where('status', 'confirmed')
+                                ->where('payment_status', 'unpaid');
+                        });
+                });
+            })
             ->with('user')
             ->get();
 
@@ -539,7 +819,15 @@ class AdminController extends Controller
      */
     public function exportRegistrationsExcel(Exam $exam)
     {
-        return Excel::download(new ExamRegistrationsExport($exam->id), "registrations-exam-{$exam->id}.xlsx");
+        $filter = request()->query('filter');
+        if (!in_array($filter, ['paid', 'unpaid', 'cancelled', 'osd'], true)) {
+            $filter = null;
+        }
+
+        return Excel::download(
+            new ExamRegistrationsExport($exam->id, $filter),
+            "registrations-exam-{$exam->id}.xlsx"
+        );
     }
 
     /**

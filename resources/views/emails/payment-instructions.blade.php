@@ -28,6 +28,23 @@
                                 <p style="margin:0 0 16px 0;font-size:15px;"><strong>{{ __('messages.email_amount_due_label') }}:</strong> {{ number_format($amount, 2, ',', ' ') }} €</p>
                             @endif
 
+                            @if(count($selectedModules) > 0)
+                                @php
+                                    $moduleLabels = [
+                                        'reading' => __('messages.module_reading'),
+                                        'listening' => __('messages.module_listening'),
+                                        'writing' => __('messages.module_writing'),
+                                        'speaking' => __('messages.module_speaking'),
+                                    ];
+                                @endphp
+                                <p style="margin:0 0 8px 0;font-size:15px;"><strong>{{ __('messages.email_selected_modules_label') }}:</strong></p>
+                                <ul style="margin:0 0 16px 20px;padding:0;font-size:14px;">
+                                    @foreach($selectedModules as $module)
+                                        <li>{{ $moduleLabels[$module] ?? $module }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0 20px 0;border:1px solid #e5e7eb;border-radius:8px;">
                                 <tr>
                                     <td style="padding:12px 16px;font-size:14px;">
@@ -44,28 +61,35 @@
                                         <strong>{{ __('messages.bank_iban') }}:</strong> {{ $bank['iban'] ?? __('messages.not_available_short') }}
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="padding:12px 16px;font-size:14px;border-top:1px solid #e5e7eb;">
-                                        <strong>{{ __('messages.bank_bic') }}:</strong> {{ $bank['bic'] ?? __('messages.not_available_short') }}
-                                    </td>
-                                </tr>
+                                @if(!empty($bank['bic']))
+                                    <tr>
+                                        <td style="padding:12px 16px;font-size:14px;border-top:1px solid #e5e7eb;">
+                                            <strong>{{ __('messages.bank_bic') }}:</strong> {{ $bank['bic'] }}
+                                        </td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td style="padding:12px 16px;font-size:14px;border-top:1px solid #e5e7eb;">
                                         <strong>{{ __('messages.bank_account_number') }}:</strong> {{ $bank['account_number'] ?? __('messages.not_available_short') }}
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="padding:12px 16px;font-size:14px;border-top:1px solid #e5e7eb;">
-                                        <strong>{{ __('messages.bank_address') }}:</strong> {{ $bank['address'] ?? __('messages.not_available_short') }}
-                                    </td>
-                                </tr>
+                                @if(!empty($bank['address']))
+                                    <tr>
+                                        <td style="padding:12px 16px;font-size:14px;border-top:1px solid #e5e7eb;">
+                                            <strong>{{ __('messages.bank_address') }}:</strong> {{ $bank['address'] }}
+                                        </td>
+                                    </tr>
+                                @endif
                             </table>
 
                             @if(!empty($bank['note']))
                                 <p style="margin:0 0 16px 0;font-size:14px;color:#6b7280;">{{ $bank['note'] }}</p>
                             @endif
 
-                            <p style="margin:0;font-size:13px;color:#6b7280;">{{ __('messages.email_payment_proof_note') }}</p>
+                            <p style="margin:0 0 6px 0;font-size:13px;color:#6b7280;">{{ __('messages.email_payment_proof_note') }}</p>
+                            <p style="margin:0;font-size:13px;color:#6b7280;">
+                                <a href="mailto:info@examenosd.cial-de.com" style="color:#2563eb;">info@examenosd.cial-de.com</a>
+                            </p>
                         </td>
                     </tr>
                     <tr>

@@ -92,7 +92,15 @@
                         <td>{{ $payment->user?->first_name }} {{ $payment->user?->last_name }}</td>
                         <td>{{ $payment->registration?->exam?->name ?? __('messages.not_available_short') }}</td>
                         <td>{{ number_format($payment->amount, 2) }}€</td>
-                        <td>{{ $payment->status === 'confirmed' ? __('messages.confirmed') : __('messages.pending') }}</td>
+                        <td>
+                            @if($payment->status === 'confirmed')
+                                {{ __('messages.confirmed') }}
+                            @elseif($payment->status === 'reversed')
+                                {{ __('messages.payment_reversed') }}
+                            @else
+                                {{ __('messages.pending') }}
+                            @endif
+                        </td>
                         <td>{{ $payment->paid_at?->format('d/m/Y H:i') ?? __('messages.not_available_short') }}</td>
                     </tr>
                     @empty

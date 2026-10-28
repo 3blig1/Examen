@@ -33,6 +33,9 @@
                                 </tr>
                             </table>
                             <p style="margin:0 0 16px 0;font-size:15px;">{{ __('messages.email_payment_access_note') }}</p>
+                            <div style="margin:16px 0;padding:14px 16px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:4px;font-size:14px;line-height:1.5;">
+                                <strong>{{ __('messages.email_exam_day_reminder') }}</strong>
+                            </div>
                             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px 0;">
                                 <tr>
                                     <td bgcolor="#2563eb" style="border-radius:6px;">

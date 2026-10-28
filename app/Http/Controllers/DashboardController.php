@@ -77,10 +77,17 @@ class DashboardController extends Controller
     public function showResult(\App\Models\ExamResult $result)
     {
         $user = auth()->user();
+        $result->loadMissing('registration');
 
         // Only allow owner, admin or examiner to view
         if (! $user->isAdmin() && ! $user->isExaminer() && $result->user_id !== $user->id) {
             abort(403);
+        }
+
+        // Students can only view results for registrations with confirmed payment.
+        if (! $user->isAdmin() && ! $user->isExaminer() && $result->registration?->payment_status !== 'paid') {
+            return redirect()->route('dashboard')
+                ->with('error', __('messages.payment_required'));
         }
 
         // Students cannot view unpublished results

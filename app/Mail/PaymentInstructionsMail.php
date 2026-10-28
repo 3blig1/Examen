@@ -16,13 +16,15 @@ class PaymentInstructionsMail extends Mailable
     public array $bank;
     public ?Exam $exam;
     public ?float $amount;
+    public array $selectedModules;
 
-    public function __construct(User $user, ?Exam $exam = null, ?float $amount = null)
+    public function __construct(User $user, ?Exam $exam = null, ?float $amount = null, array $selectedModules = [])
     {
         $this->user = $user;
         $this->bank = config('app.bank') ?? [];
         $this->exam = $exam;
         $this->amount = $amount;
+        $this->selectedModules = $selectedModules;
     }
 
     public function build(): self

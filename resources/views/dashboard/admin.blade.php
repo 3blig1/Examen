@@ -98,11 +98,25 @@
                                 </td>
                                 <td>{{ $registration->created_at->format('d/m/Y') }}</td>
                                 <td>
-                                    @if($registration->status === 'pending')
+                                    @if(in_array($registration->status, ['pending', 'confirmed'], true) && $registration->payment_status !== 'paid')
                                     <form action="{{ route('admin.registrations.confirm', $registration) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="button" class="btn btn-sm btn-success confirm-action" onclick="return false;" data-confirm-message="{{ __('messages.confirm_payment') }}">
-                                            <i class="fas fa-check"></i> {{ __('messages.confirm') }}
+                                        <button type="button" class="btn btn-sm btn-success confirm-action" data-confirm-message="{{ __('messages.confirm_payment') }}">
+                                            <i class="fas fa-credit-card"></i> {{ __('messages.mark_paid') }}
+                                        </button>
+                                    </form>
+                                    @elseif($registration->status === 'cancelled' && $registration->payment_status !== 'paid')
+                                    <form action="{{ route('admin.registrations.restore-paid', $registration) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="button" class="btn btn-sm btn-success confirm-action" data-confirm-message="{{ __('messages.confirm_restore_paid_registration') }}">
+                                            <i class="fas fa-undo"></i> {{ __('messages.restore_paid_registration') }}
+                                        </button>
+                                    </form>
+                                    @elseif($registration->payment_status === 'paid' && $registration->status !== 'completed')
+                                    <form action="{{ route('admin.registrations.undo-payment-confirmation', $registration) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="button" class="btn btn-sm btn-warning confirm-action" data-confirm-message="{{ __('messages.confirm_undo_payment_confirmation') }}">
+                                            <i class="fas fa-undo"></i> {{ __('messages.undo_payment_confirmation') }}
                                         </button>
                                     </form>
                                     @endif
