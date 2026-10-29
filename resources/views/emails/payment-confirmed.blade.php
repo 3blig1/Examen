@@ -33,8 +33,25 @@
                                 </tr>
                             </table>
                             <p style="margin:0 0 16px 0;font-size:15px;">{{ __('messages.email_payment_access_note') }}</p>
+                            @php
+                                $arrivalTime = $registration->exam?->date?->copy()->subHour()->format('H:i');
+                            @endphp
                             <div style="margin:16px 0;padding:14px 16px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:4px;font-size:14px;line-height:1.5;">
-                                <strong>{{ __('messages.email_exam_day_reminder') }}</strong>
+                                <p style="margin:0 0 10px 0;"><strong>{{ __('messages.email_exam_day_instructions', ['time' => $arrivalTime ?? '—']) }}</strong></p>
+                                <ol style="margin:0 0 10px 20px;padding:0;">
+                                    <li style="margin-bottom:6px;">{{ __('messages.email_exam_document_payment_slip') }}</li>
+                                    <li style="margin-bottom:6px;">
+                                        {{ __('messages.email_exam_document_passport') }}
+                                        <ul style="margin:6px 0 0 18px;padding:0;">
+                                            <li>{{ __('messages.email_exam_document_cni') }}</li>
+                                            <li>{{ __('messages.email_exam_document_driving_license') }}</li>
+                                            <li>{{ __('messages.email_exam_document_health_card') }}</li>
+                                            <li>{{ __('messages.email_exam_document_student_card') }}</li>
+                                        </ul>
+                                    </li>
+                                    <li>{{ __('messages.email_exam_document_copy') }}</li>
+                                </ol>
+                                <p style="margin:0;"><strong>{{ __('messages.email_exam_no_voter_card') }}</strong></p>
                             </div>
                             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px 0;">
                                 <tr>
