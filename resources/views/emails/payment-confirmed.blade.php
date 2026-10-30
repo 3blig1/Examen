@@ -41,14 +41,14 @@
                                 <ol style="margin:0 0 10px 20px;padding:0;">
                                     <li style="margin-bottom:6px;">{{ __('messages.email_exam_document_payment_slip') }}</li>
                                     <li style="margin-bottom:6px;">
-                                        {{ __('messages.email_exam_document_passport') }}
+                                        {{ __('messages.email_exam_document_identity') }}
                                         <ul style="margin:6px 0 0 18px;padding:0;">
                                             <li>{{ __('messages.email_exam_document_cni') }}</li>
                                             <li>{{ __('messages.email_exam_document_driving_license') }}</li>
-                                            <li>{{ __('messages.email_exam_document_health_card') }}</li>
                                             <li>{{ __('messages.email_exam_document_student_card') }}</li>
                                         </ul>
                                     </li>
+                                    <li style="margin-bottom:6px;">{{ __('messages.email_exam_document_foreign_passport') }}</li>
                                     <li>{{ __('messages.email_exam_document_copy') }}</li>
                                 </ol>
                                 <p style="margin:0;"><strong>{{ __('messages.email_exam_no_voter_card') }}</strong></p>

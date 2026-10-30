@@ -34,7 +34,7 @@ class ExamResult extends Model
      */
     public function registration(): BelongsTo
     {
-        return $this->belongsTo(ExamRegistration::class);
+        return $this->belongsTo(ExamRegistration::class, 'exam_registration_id');
     }
 
     /**

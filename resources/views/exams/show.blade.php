@@ -49,12 +49,6 @@
                                 {{ $exam->isAvailable() ? __('messages.registration_open') : __('messages.registration_closed') }}
                             </span>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-muted">{{ __('messages.available_spots') }}</h6>
-                            <p class="fs-5">
-                                <span class="badge bg-info fs-6">{{ $exam->available_spots }} / {{ $exam->max_participants }}</span>
-                            </p>
-                        </div>
                     </div>
 
                     <hr>

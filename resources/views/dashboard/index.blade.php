@@ -44,7 +44,6 @@
                         <th>{{ __('messages.level') }}</th>
                         <th>{{ __('messages.date') }}</th>
                         <th>{{ __('messages.location') }}</th>
-                        <th>{{ __('messages.available_spots') }}</th>
                         <th>{{ __('messages.action') }}</th>
                     </tr>
                 </thead>
@@ -54,9 +53,6 @@
                         <td><strong>{{ $exam->name }}</strong></td>
                         <td>{{ $exam->date->format('d/m/Y H:i') }}</td>
                         <td>{{ $exam->location ?? __('messages.not_available_short') }}</td>
-                        <td>
-                            <span class="badge bg-info">{{ $exam->available_spots }} / {{ $exam->max_participants }}</span>
-                        </td>
                         <td>
                             <a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-eye"></i> {{ __('messages.see_details') }}
@@ -150,7 +146,7 @@
                         </td>
                         @if(auth()->user()->isAdmin())
                         <td>
-                            @if($registration->status === 'pending' && $registration->payment_status === 'unpaid')
+                            @if(in_array($registration->status, ['pending', 'confirmed'], true) && $registration->payment_status === 'unpaid')
                                 <form action="{{ route('admin.registrations.confirm', $registration) }}" method="POST" style="display:inline;">
                                     @csrf
                                     <button type="button" class="btn btn-sm btn-warning confirm-action" data-confirm-message="{{ __('messages.confirm_payment') }}">

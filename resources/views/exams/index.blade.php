@@ -18,7 +18,6 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h5 class="card-title mb-0">{{ __('messages.level_label') }} {{ $exam->name }}</h5>
-                        <span class="badge bg-info">{{ $exam->available_spots }}/{{ $exam->max_participants }}</span>
                     </div>
                     
                     <p class="card-text text-muted mb-3">{{ Str::limit($exam->description, 100) }}</p>
