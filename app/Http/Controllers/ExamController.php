@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\ExamRegistration;
 use App\Mail\PaymentInstructionsMail;
+use App\Support\FlashMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -60,12 +61,12 @@ class ExamController extends Controller
         if (ExamRegistration::where('user_id', $user->id)
             ->where('exam_id', $exam->id)
             ->exists()) {
-            return back()->with('error', 'You are already registered for this exam');
+            return back()->with('error', FlashMessage::translated('flash.already_registered'));
         }
 
         // Check if exam has available spots
         if (!$exam->isAvailable()) {
-            return back()->with('error', 'This exam is no longer available for registration');
+            return back()->with('error', FlashMessage::translated('flash.exam_unavailable'));
         }
 
         // Validate selected modules
@@ -106,7 +107,7 @@ class ExamController extends Controller
             $validated['selected_modules']
         ));
 
-        return back()->with('success', 'Registration successful! Please complete your payment.');
+        return back()->with('success', FlashMessage::translated('flash.registration_success_payment'));
     }
 
     /**
@@ -120,13 +121,13 @@ class ExamController extends Controller
         }
 
         if ($registration->status === 'completed') {
-            return back()->with('error', 'Cannot cancel a completed registration');
+            return back()->with('error', FlashMessage::translated('flash.cannot_cancel_completed_registration'));
         }
 
         $registration->update(['status' => 'cancelled']);
         $registration->exam->decrement('registered_count');
 
-        return back()->with('success', 'Registration cancelled successfully');
+        return back()->with('success', FlashMessage::translated('flash.registration_cancelled'));
     }
 
     /**
@@ -151,6 +152,6 @@ class ExamController extends Controller
             'confirmed_at' => now(),
         ]);
 
-        return back()->with('success', 'Payment recorded by admin and registration confirmed.');
+        return back()->with('success', FlashMessage::translated('flash.payment_recorded'));
     }
 }

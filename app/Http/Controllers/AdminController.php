@@ -10,6 +10,7 @@ use App\Models\ExamExaminerAssignment;
 use App\Models\EmailVerification;
 use App\Models\PaymentHistory;
 use App\Models\ActivityLog;
+use App\Support\FlashMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\ExamRegistrationsExport;
 use App\Exports\ExamResultsExport;
+use App\Exports\ExamResultsTemplateExport;
+use App\Imports\ExamResultsRowsImport;
 
 class AdminController extends Controller
 {
@@ -150,7 +153,7 @@ class AdminController extends Controller
         $this->logActivity('exam_created', Exam::class, $exam->id, "Exam created: {$exam->name}");
 
         return redirect()->route('admin.exams')
-            ->with('success', 'Exam created successfully');
+            ->with('success', FlashMessage::translated('messages.exam_created'));
     }
 
     /**
@@ -189,7 +192,7 @@ class AdminController extends Controller
         $this->logActivity('exam_updated', Exam::class, $exam->id, "Exam updated: {$exam->name}");
 
         return redirect()->route('admin.exams')
-            ->with('success', 'Exam updated successfully');
+            ->with('success', FlashMessage::translated('messages.exam_updated'));
     }
 
     /**
@@ -199,7 +202,7 @@ class AdminController extends Controller
     {
         $this->logActivity('exam_deleted', Exam::class, $exam->id, "Exam deleted: {$exam->name}");
         $exam->delete();
-        return back()->with('success', 'Exam deleted successfully');
+        return back()->with('success', FlashMessage::translated('messages.exam_deleted'));
     }
 
     /**
@@ -311,7 +314,7 @@ class AdminController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Affectations des examinateurs mises a jour');
+        return back()->with('success', FlashMessage::translated('flash.examiner_assignments_updated'));
     }
 
     /**
@@ -428,9 +431,9 @@ class AdminController extends Controller
         });
 
         if ($confirmationResult !== 'confirmed') {
-            return back()->with('error', $confirmationResult === 'already_paid'
-                ? __('messages.payment_already_confirmed')
-                : __('messages.cannot_confirm_inactive_registration'));
+            return back()->with('error', FlashMessage::translated($confirmationResult === 'already_paid'
+                ? 'messages.payment_already_confirmed'
+                : 'messages.cannot_confirm_inactive_registration'));
         }
 
         $registration->refresh();
@@ -439,7 +442,7 @@ class AdminController extends Controller
 
         Mail::to($registration->user->email)->send(new PaymentConfirmed($registration));
 
-        return back()->with('success', __('messages.payment_confirmation_recorded'));
+        return back()->with('success', FlashMessage::translated('messages.payment_confirmation_recorded'));
     }
 
     /**
@@ -498,19 +501,19 @@ class AdminController extends Controller
         });
 
         if ($restoreResult !== 'restored') {
-            $message = match ($restoreResult) {
-                'full' => __('messages.cannot_restore_exam_full'),
-                'completed' => __('messages.cannot_restore_completed_exam'),
-                default => __('messages.cannot_restore_registration'),
+            $messageKey = match ($restoreResult) {
+                'full' => 'messages.cannot_restore_exam_full',
+                'completed' => 'messages.cannot_restore_completed_exam',
+                default => 'messages.cannot_restore_registration',
             };
 
-            return back()->with('error', $message);
+            return back()->with('error', FlashMessage::translated($messageKey));
         }
 
         $registration->refresh();
         Mail::to($registration->user->email)->send(new PaymentConfirmed($registration));
 
-        return back()->with('success', __('messages.cancelled_registration_restored'));
+        return back()->with('success', FlashMessage::translated('messages.cancelled_registration_restored'));
     }
 
     /**
@@ -553,16 +556,16 @@ class AdminController extends Controller
         });
 
         if ($restoreResult !== 'restored') {
-            $message = match ($restoreResult) {
-                'full' => __('messages.cannot_restore_exam_full'),
-                'completed' => __('messages.cannot_restore_completed_exam'),
-                default => __('messages.cannot_restore_registration'),
+            $messageKey = match ($restoreResult) {
+                'full' => 'messages.cannot_restore_exam_full',
+                'completed' => 'messages.cannot_restore_completed_exam',
+                default => 'messages.cannot_restore_registration',
             };
 
-            return back()->with('error', $message);
+            return back()->with('error', FlashMessage::translated($messageKey));
         }
 
-        return back()->with('success', __('messages.cancelled_registration_restored_unpaid'));
+        return back()->with('success', FlashMessage::translated('messages.cancelled_registration_restored_unpaid'));
     }
 
     /**
@@ -571,11 +574,11 @@ class AdminController extends Controller
     public function undoPaymentConfirmation(ExamRegistration $registration)
     {
         if ($registration->payment_status !== 'paid') {
-            return back()->with('error', __('messages.payment_not_confirmed'));
+            return back()->with('error', FlashMessage::translated('messages.payment_not_confirmed'));
         }
 
         if ($registration->status === 'completed') {
-            return back()->with('error', __('messages.cannot_undo_completed_payment'));
+            return back()->with('error', FlashMessage::translated('messages.cannot_undo_completed_payment'));
         }
 
         DB::transaction(function () use ($registration) {
@@ -611,7 +614,7 @@ class AdminController extends Controller
             );
         });
 
-        return back()->with('success', __('messages.payment_confirmation_undone'));
+        return back()->with('success', FlashMessage::translated('messages.payment_confirmation_undone'));
     }
 
     /**
@@ -629,7 +632,7 @@ class AdminController extends Controller
 
         Mail::to($registration->user->email)->send(new RegistrationCancelled($registration));
 
-        return back()->with('success', 'Registration rejected');
+        return back()->with('success', FlashMessage::translated('flash.registration_rejected'));
     }
 
     /**
@@ -654,7 +657,7 @@ class AdminController extends Controller
             $registration->delete();
         });
 
-        return back()->with('success', 'Registration deleted successfully');
+        return back()->with('success', FlashMessage::translated('flash.registration_deleted'));
     }
 
     /**
@@ -674,12 +677,231 @@ class AdminController extends Controller
     }
 
     /**
+     * Download a prefilled spreadsheet template for importing exam results.
+     */
+    public function exportResultsTemplate(Exam $exam)
+    {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
+        return Excel::download(
+            new ExamResultsTemplateExport($exam->id),
+            "exam-{$exam->id}-results-template.xlsx"
+        );
+    }
+
+    /**
+     * Import results from an Excel or CSV file, matched by registration ID and email.
+     */
+    public function importResults(Request $request, Exam $exam)
+    {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
+        $request->validate([
+            'results_file' => 'required|file|mimes:xlsx,xls,csv,txt|max:5120',
+        ]);
+
+        $uploadedFile = $request->file('results_file');
+        $delimiter = ',';
+        if (in_array(strtolower($uploadedFile->getClientOriginalExtension()), ['csv', 'txt'], true)) {
+            $handle = fopen($uploadedFile->getRealPath(), 'r');
+            $header = $handle ? fgets($handle) : false;
+            if ($handle) {
+                fclose($handle);
+            }
+            if (is_string($header) && substr_count($header, ';') > substr_count($header, ',')) {
+                $delimiter = ';';
+            }
+        }
+
+        $import = new ExamResultsRowsImport($delimiter);
+        Excel::import($import, $uploadedFile);
+        $rows = $import->rows ?? collect();
+
+        if ($rows->count() > 500) {
+            return back()->withErrors([
+                'results_import' => __('messages.results_import_too_many_rows'),
+            ]);
+        }
+
+        $errors = [];
+        $updates = [];
+        $seenRegistrationIds = [];
+        $allowedModules = ['reading', 'listening', 'writing', 'speaking'];
+        $examRegistrations = ExamRegistration::query()
+            ->where('exam_id', $exam->id)
+            ->where('status', '!=', 'cancelled')
+            ->with(['user', 'result'])
+            ->get();
+
+        foreach ($rows as $index => $row) {
+            $row = $row->toArray();
+            $rowNumber = $index + 2; // The first row contains column headings.
+            $hasResultData = collect([
+                $row['reading_score'] ?? null,
+                $row['listening_score'] ?? null,
+                $row['writing_score'] ?? null,
+                $row['speaking_score'] ?? null,
+                $row['level_achieved'] ?? null,
+                $row['status'] ?? null,
+                $row['remarks'] ?? null,
+            ])->contains(fn ($value) => $value !== null && trim((string) $value) !== '');
+
+            // A prefilled template row with no scores entered is intentionally ignored.
+            if (!$hasResultData) {
+                continue;
+            }
+
+            $firstName = $this->normalizeCandidateName($row['first_name'] ?? null);
+            $lastName = $this->normalizeCandidateName($row['last_name'] ?? null);
+            $dateOfBirth = $this->normalizeCandidateBirthDate($row['date_of_birth'] ?? null);
+            if ($firstName === '' || $lastName === '' || $dateOfBirth === null) {
+                $errors[] = __('messages.results_import_missing_identity', ['row' => $rowNumber]);
+                continue;
+            }
+
+            $matches = $examRegistrations->filter(function (ExamRegistration $candidateRegistration) use ($firstName, $lastName, $dateOfBirth) {
+                $candidate = $candidateRegistration->user;
+
+                return $candidate
+                    && $this->normalizeCandidateName($candidate->first_name) === $firstName
+                    && $this->normalizeCandidateName($candidate->last_name) === $lastName
+                    && $candidate->date_of_birth?->format('Y-m-d') === $dateOfBirth;
+            });
+
+            if ($matches->count() !== 1) {
+                $errors[] = $matches->isEmpty()
+                    ? __('messages.results_import_candidate_not_found', ['row' => $rowNumber])
+                    : __('messages.results_import_ambiguous_candidate', ['row' => $rowNumber]);
+                continue;
+            }
+
+            $registration = $matches->first();
+            if (isset($seenRegistrationIds[$registration->id])) {
+                $errors[] = __('messages.results_import_duplicate_registration', ['row' => $rowNumber]);
+                continue;
+            }
+            $seenRegistrationIds[$registration->id] = true;
+
+            $selectedModules = array_values(array_intersect(
+                $registration->selected_modules ?? $allowedModules,
+                $allowedModules
+            ));
+            if ($selectedModules === []) {
+                $selectedModules = $allowedModules;
+            }
+
+            $scores = array_fill_keys($allowedModules, null);
+            foreach ($selectedModules as $module) {
+                $value = $row[$module . '_score'] ?? null;
+                if ($value === null || trim((string) $value) === '' || !is_numeric($value) || (float) $value < 0 || (float) $value > 100 || (float) $value !== floor((float) $value)) {
+                    $errors[] = __('messages.results_import_invalid_score', [
+                        'row' => $rowNumber,
+                        'module' => __('messages.module_' . $module),
+                    ]);
+                    continue 2;
+                }
+                $scores[$module] = (int) $value;
+            }
+
+            $status = strtolower(trim((string) ($row['status'] ?? '')));
+            if ($status !== '' && !in_array($status, ['passed', 'failed'], true)) {
+                $errors[] = __('messages.results_import_invalid_status', ['row' => $rowNumber]);
+                continue;
+            }
+
+            $level = strtoupper(trim((string) ($row['level_achieved'] ?? '')));
+            if ($level !== '' && !in_array($level, ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], true)) {
+                $errors[] = __('messages.results_import_invalid_level', ['row' => $rowNumber]);
+                continue;
+            }
+
+            $selectedScores = array_map(fn ($module) => $scores[$module], $selectedModules);
+            $updates[] = [
+                'registration' => $registration,
+                'attributes' => [
+                    'user_id' => $registration->user_id,
+                    'exam_id' => $registration->exam_id,
+                    'reading_score' => $scores['reading'],
+                    'listening_score' => $scores['listening'],
+                    'writing_score' => $scores['writing'],
+                    'speaking_score' => $scores['speaking'],
+                    'total_score' => array_sum($selectedScores) / count($selectedScores),
+                    'level_achieved' => $level !== '' ? $level : null,
+                    'status' => $status !== '' ? $status : ($registration->result?->status ?? 'pending'),
+                    'remarks' => trim((string) ($row['remarks'] ?? '')) ?: null,
+                ],
+            ];
+        }
+
+        if ($errors !== []) {
+            return back()->withErrors($errors);
+        }
+
+        if ($updates === []) {
+            return back()->withErrors([
+                'results_import' => __('messages.results_import_no_data'),
+            ]);
+        }
+
+        DB::transaction(function () use ($updates) {
+            foreach ($updates as $update) {
+                ExamResult::updateOrCreate(
+                    ['exam_registration_id' => $update['registration']->id],
+                    $update['attributes']
+                );
+            }
+        });
+
+        $this->logActivity('results_imported', Exam::class, $exam->id, count($updates) . " exam results imported for {$exam->name}");
+
+        return back()->with('success', FlashMessage::translated('messages.results_import_success', ['count' => count($updates)]));
+    }
+
+    private function normalizeCandidateName(mixed $value): string
+    {
+        $name = preg_replace('/\s+/u', ' ', trim((string) $value)) ?? '';
+
+        return function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+    }
+
+    private function normalizeCandidateBirthDate(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        // Excel may store a date cell as its numeric serial value.
+        if (is_numeric($value) && (float) $value >= 1 && (float) $value <= 2958465) {
+            try {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $value)->format('Y-m-d');
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        foreach (['Y-m-d', 'd/m/Y', 'd-m-Y'] as $format) {
+            $date = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+            $errors = \DateTimeImmutable::getLastErrors();
+            if ($date && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0))) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * View results for a completed exam
      */
     public function examResults(Exam $exam)
     {
         if ($exam->status !== 'completed') {
-            return back()->with('error', __('messages.exam_not_completed'));
+            return back()->with('error', FlashMessage::translated('messages.exam_not_completed'));
         }
 
         $registrations = ExamRegistration::where('exam_id', $exam->id)
@@ -946,79 +1168,52 @@ class AdminController extends Controller
      */
     public function storeResult(Request $request, ExamRegistration $registration)
     {
-        $request->validate([
+        $allowedModules = ['reading', 'listening', 'writing', 'speaking'];
+        $selectedModules = array_values(array_intersect(
+            $registration->selected_modules ?? $allowedModules,
+            $allowedModules
+        ));
+        if ($selectedModules === []) {
+            $selectedModules = $allowedModules;
+        }
+
+        $rules = [
             'level_achieved' => 'nullable|string|in:A1,A2,B1,B2,C1,C2',
             'status' => 'required|in:passed,failed',
             'remarks' => 'nullable|string',
-        ]);
-
-        $cleanScore = function ($value) {
-            if (is_null($value) || $value === '') {
-                return 0;
-            }
-            return (int) $value;
-        };
-
-        $readingScore = $cleanScore($request->input('reading_score'));
-        $listeningScore = $cleanScore($request->input('listening_score'));
-        $writingScore = $cleanScore($request->input('writing_score'));
-        $speakingScore = $cleanScore($request->input('speaking_score'));
-
-        foreach ([
-            'reading_score' => $readingScore,
-            'listening_score' => $listeningScore,
-            'writing_score' => $writingScore,
-            'speaking_score' => $speakingScore,
-        ] as $field => $score) {
-            if ($score < 0 || $score > 100) {
-                return back()->withErrors([$field => 'Le score doit être entre 0 et 100']);
-            }
+        ];
+        foreach ($selectedModules as $module) {
+            $rules[$module . '_score'] = 'required|integer|min:0|max:100';
         }
 
-        $selectedModules = $registration->selected_modules ?? [];
+        $validated = $request->validate($rules);
+        $moduleScores = array_fill_keys($allowedModules, null);
         $scores = [];
 
-        if (in_array('reading', $selectedModules)) {
-            $scores[] = $readingScore;
-        }
-        if (in_array('listening', $selectedModules)) {
-            $scores[] = $listeningScore;
-        }
-        if (in_array('writing', $selectedModules)) {
-            $scores[] = $writingScore;
-        }
-        if (in_array('speaking', $selectedModules)) {
-            $scores[] = $speakingScore;
+        foreach ($selectedModules as $module) {
+            $moduleScores[$module] = (int) $validated[$module . '_score'];
+            $scores[] = $moduleScores[$module];
         }
 
         $totalScore = !empty($scores) ? array_sum($scores) / count($scores) : 0;
-        $levelAchieved = $request->input('level_achieved');
-        if ($levelAchieved === '') {
-            $levelAchieved = null;
-        }
-
-        $status = $request->input('status');
-        if ($status === '') {
-            $status = null;
-        }
 
         ExamResult::updateOrCreate(
             ['exam_registration_id' => $registration->id],
             [
                 'exam_id' => $registration->exam_id,
                 'user_id' => $registration->user_id,
-                'reading_score' => $readingScore,
-                'listening_score' => $listeningScore,
-                'writing_score' => $writingScore,
-                'speaking_score' => $speakingScore,
+                'reading_score' => $moduleScores['reading'],
+                'listening_score' => $moduleScores['listening'],
+                'writing_score' => $moduleScores['writing'],
+                'speaking_score' => $moduleScores['speaking'],
                 'total_score' => $totalScore,
-                'level_achieved' => $levelAchieved,
-                'status' => $status,
-                'remarks' => $request->input('remarks'),
+                'level_achieved' => $validated['level_achieved'] ?? null,
+                'status' => $validated['status'],
+                'remarks' => $validated['remarks'] ?? null,
             ]
         );
 
-        return back()->with('success', 'Result saved successfully');
+        return back()->with('success', FlashMessage::translated('flash.result_saved'));
     }
 
     /**
@@ -1040,7 +1235,7 @@ class AdminController extends Controller
 
         $this->logActivity('results_published', Exam::class, $exam->id, "Results published for exam {$exam->name}");
 
-        return back()->with('success', "Results published successfully ($updated)");
+        return back()->with('success', FlashMessage::translated('flash.results_published_count', ['count' => $updated]));
     }
 
     /**
@@ -1160,7 +1355,9 @@ class AdminController extends Controller
         ] : null;
         Mail::to($user->email)->send(new EmailVerificationMail($user, $url, $credentials));
 
-        return back()->with('success', "Utilisateur {$validated['role']} cree avec succes");
+        $createdMessage = $validated['role'] === 'admin' ? 'flash.admin_created' : 'flash.examiner_created';
+
+        return back()->with('success', FlashMessage::translated($createdMessage));
     }
 
     /**
@@ -1169,7 +1366,7 @@ class AdminController extends Controller
     public function updateUserRole(\Illuminate\Http\Request $request, User $user)
     {
         if ($user->isSuperAdmin()) {
-            return back()->with('error', 'You cannot change the super admin role.');
+            return back()->with('error', FlashMessage::translated('flash.cannot_change_super_admin_role'));
         }
 
         $validated = $request->validate([
@@ -1178,13 +1375,13 @@ class AdminController extends Controller
 
         // Prevent demoting self
         if (auth()->id() === $user->id && $validated['role'] !== 'admin') {
-            return back()->with('error', 'You cannot change your own admin role.');
+            return back()->with('error', FlashMessage::translated('flash.cannot_change_own_admin_role'));
         }
 
         $user->role = $validated['role'];
         $user->save();
 
-        return back()->with('success', 'User role updated successfully');
+        return back()->with('success', FlashMessage::translated('flash.user_role_updated'));
     }
 
     /**
@@ -1193,20 +1390,20 @@ class AdminController extends Controller
     public function deactivateUser(User $user)
     {
         if (!auth()->user()->canManageUsers()) {
-            return back()->with('error', __('messages.user_manage_permission_required'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_required'));
         }
 
         if ($user->isSuperAdmin()) {
-            return back()->with('error', __('messages.user_deactivate_super_admin_forbidden'));
+            return back()->with('error', FlashMessage::translated('messages.user_deactivate_super_admin_forbidden'));
         }
 
         if (auth()->id() === $user->id) {
-            return back()->with('error', __('messages.user_deactivate_self_forbidden'));
+            return back()->with('error', FlashMessage::translated('messages.user_deactivate_self_forbidden'));
         }
 
         $user->forceFill(['is_active' => false])->save();
 
-        return back()->with('success', __('messages.user_deactivated'));
+        return back()->with('success', FlashMessage::translated('messages.user_deactivated'));
     }
 
     /**
@@ -1215,16 +1412,16 @@ class AdminController extends Controller
     public function activateUser(User $user)
     {
         if (!auth()->user()->canManageUsers()) {
-            return back()->with('error', __('messages.user_manage_permission_required'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_required'));
         }
 
         if ($user->isSuperAdmin()) {
-            return back()->with('error', __('messages.user_activate_super_admin_forbidden'));
+            return back()->with('error', FlashMessage::translated('messages.user_activate_super_admin_forbidden'));
         }
 
         $user->forceFill(['is_active' => true])->save();
 
-        return back()->with('success', __('messages.user_activated'));
+        return back()->with('success', FlashMessage::translated('messages.user_activated'));
     }
 
     /**
@@ -1233,15 +1430,15 @@ class AdminController extends Controller
     public function deleteUser(User $user)
     {
         if (!auth()->user()->canManageUsers()) {
-            return back()->with('error', __('messages.user_manage_permission_required'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_required'));
         }
 
         if ($user->isSuperAdmin()) {
-            return back()->with('error', __('messages.user_delete_super_admin_forbidden'));
+            return back()->with('error', FlashMessage::translated('messages.user_delete_super_admin_forbidden'));
         }
 
         if (auth()->id() === $user->id) {
-            return back()->with('error', __('messages.user_delete_self_forbidden'));
+            return back()->with('error', FlashMessage::translated('messages.user_delete_self_forbidden'));
         }
 
         $this->logActivity('user_deleted', User::class, $user->id, "User deleted: {$user->email}");
@@ -1256,7 +1453,7 @@ class AdminController extends Controller
             $user->delete();
         });
 
-        return back()->with('success', __('messages.user_delete_success'));
+        return back()->with('success', FlashMessage::translated('messages.user_delete_success'));
     }
 
     /**
@@ -1265,15 +1462,15 @@ class AdminController extends Controller
     public function updateManageUsersPermission(Request $request, User $user)
     {
         if (!auth()->user()->isSuperAdmin()) {
-            return back()->with('error', __('messages.user_manage_permission_super_admin_only'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_super_admin_only'));
         }
 
         if ($user->isSuperAdmin()) {
-            return back()->with('error', __('messages.user_manage_permission_super_admin_only'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_super_admin_only'));
         }
 
         if ($user->role !== 'admin') {
-            return back()->with('error', __('messages.user_manage_permission_admin_only'));
+            return back()->with('error', FlashMessage::translated('messages.user_manage_permission_admin_only'));
         }
 
         $validated = $request->validate([
@@ -1284,7 +1481,7 @@ class AdminController extends Controller
             'admin_can_manage_users' => (bool) $validated['admin_can_manage_users'],
         ])->save();
 
-        return back()->with('success', __('messages.user_manage_permission_updated'));
+        return back()->with('success', FlashMessage::translated('messages.user_manage_permission_updated'));
     }
 
     /**
@@ -1296,7 +1493,7 @@ class AdminController extends Controller
         $superAdminPassword = config('app.super_admin_password');
 
         if (empty($superAdminEmail) || empty($superAdminPassword)) {
-            return back()->with('error', 'Super admin email or password is not configured.');
+            return back()->with('error', FlashMessage::translated('flash.super_admin_config_missing'));
         }
 
         $user = User::where('email', $superAdminEmail)->first();
@@ -1318,7 +1515,7 @@ class AdminController extends Controller
             ])->save();
         }
 
-        return back()->with('success', 'Super admin password reset successfully.');
+        return back()->with('success', FlashMessage::translated('flash.super_admin_password_reset'));
     }
 
     private function logActivity(string $action, ?string $subjectType = null, ?int $subjectId = null, ?string $description = null): void

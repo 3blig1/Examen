@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\ExamRegistration;
 use App\Models\ExamResult;
+use App\Support\FlashMessage;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -87,13 +88,13 @@ class DashboardController extends Controller
         // Students can only view results for registrations with confirmed payment.
         if (! $user->isAdmin() && ! $user->isExaminer() && $result->registration?->payment_status !== 'paid') {
             return redirect()->route('dashboard')
-                ->with('error', __('messages.payment_required'));
+                ->with('error', FlashMessage::translated('messages.payment_required'));
         }
 
         // Students cannot view unpublished results
         if (!$user->isAdmin() && !$user->isExaminer() && $result->published_at === null) {
             return redirect()->route('dashboard')
-                ->with('error', __('messages.results_not_published'));
+                ->with('error', FlashMessage::translated('messages.results_not_published'));
         }
 
         $result->load(['exam', 'registration', 'user']);

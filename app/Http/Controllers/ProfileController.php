@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Support\FlashMessage;
 
 class ProfileController extends Controller
 {
@@ -43,7 +44,7 @@ class ProfileController extends Controller
 
         $user->update($validated);
 
-        return back()->with('success', __('messages.profile_updated'));
+        return back()->with('success', FlashMessage::translated('messages.profile_updated'));
     }
 
     /**
@@ -67,6 +68,6 @@ class ProfileController extends Controller
             'must_change_password' => false,
         ]);
 
-        return back()->with('success', __('messages.password_updated'));
+        return back()->with('success', FlashMessage::translated('messages.password_updated'));
     }
 }

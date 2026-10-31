@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Mail\EmailVerificationMail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Cookie;
+use App\Support\FlashMessage;
 
 class AuthController extends Controller
 {
@@ -81,14 +82,14 @@ class AuthController extends Controller
             $this->sendVerificationEmail($user, $token);
 
             return redirect()->route('login')
-                ->with('success', 'Registration successful! Please check your email to verify your account.');
+                ->with('success', FlashMessage::translated('flash.registration_success_verification'));
         }
 
         // If verification is not required, mark email as verified immediately
         $user->forceFill(['email_verified_at' => now()])->save();
 
         return redirect()->route('login')
-            ->with('success', 'Registration successful! You can now login.');
+            ->with('success', FlashMessage::translated('flash.registration_success'));
     }
 
     /**
@@ -121,8 +122,8 @@ class AuthController extends Controller
         );
 
         return $status === Password::RESET_LINK_SENT
-            ? back()->with('success', __($status))
-            : back()->with('error', __($status));
+            ? back()->with('success', FlashMessage::translated($status))
+            : back()->with('error', FlashMessage::translated($status));
     }
 
     /**
@@ -158,8 +159,8 @@ class AuthController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('success', __($status))
-            : back()->with('error', __($status));
+            ? redirect()->route('login')->with('success', FlashMessage::translated($status))
+            : back()->with('error', FlashMessage::translated($status));
     }
 
     /**
@@ -175,15 +176,15 @@ class AuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return back()->with('error', 'Invalid credentials');
+            return back()->with('error', FlashMessage::translated('flash.invalid_credentials'));
         }
 
         if (env('REQUIRE_EMAIL_VERIFICATION', true) && !$user->isEmailVerified()) {
-            return back()->with('error', 'Votre email n’est pas encore vérifié. Utilisez le bouton "Renvoyer l’email de vérification" ci-dessous.');
+            return back()->with('error', FlashMessage::translated('flash.email_not_verified'));
         }
 
         if (!$user->is_active) {
-            return back()->with('error', 'Your account is disabled');
+            return back()->with('error', FlashMessage::translated('flash.account_disabled'));
         }
 
         auth()->login($user);
@@ -201,7 +202,7 @@ class AuthController extends Controller
 
         if ($user->must_change_password) {
             return redirect()->route('profile.show')
-                ->with('error', __('messages.password_change_required'));
+                ->with('error', FlashMessage::translated('messages.password_change_required'));
         }
 
         // Redirect based on user role
@@ -226,15 +227,15 @@ class AuthController extends Controller
         $user = User::where('email', $validated['email'])->first();
 
         if (!$user) {
-            return back()->with('error', 'Email not found');
+            return back()->with('error', FlashMessage::translated('flash.email_not_found'));
         }
 
         if ($user->isEmailVerified()) {
-            return back()->with('success', 'Email already verified. You can login.');
+            return back()->with('success', FlashMessage::translated('flash.email_already_verified'));
         }
 
         if (!env('REQUIRE_EMAIL_VERIFICATION', true)) {
-            return back()->with('error', 'Email verification is not required.');
+            return back()->with('error', FlashMessage::translated('flash.email_verification_not_required'));
         }
 
         $token = Str::random(60);
@@ -246,7 +247,7 @@ class AuthController extends Controller
 
         $this->sendVerificationEmail($user, $token);
 
-        return back()->with('success', 'Verification email sent. Please check your inbox.');
+        return back()->with('success', FlashMessage::translated('flash.verification_email_sent'));
     }
 
     /**
@@ -258,7 +259,7 @@ class AuthController extends Controller
 
         if (!$verification || !$verification->isValid()) {
             return redirect()->route('login')
-                ->with('error', 'Verification link is invalid or expired');
+                ->with('error', FlashMessage::translated('flash.verification_link_invalid'));
         }
 
         $user = $verification->user;
@@ -266,7 +267,7 @@ class AuthController extends Controller
         $verification->verify();
 
         return redirect()->route('login')
-            ->with('success', 'Email verified successfully! You can now login.');
+            ->with('success', FlashMessage::translated('flash.email_verified'));
     }
 
     /**
@@ -285,6 +286,6 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-        return redirect()->route('login')->with('success', 'Logged out successfully');
+        return redirect()->route('login')->with('success', FlashMessage::translated('flash.logged_out'));
     }
 }

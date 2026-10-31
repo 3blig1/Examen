@@ -14,10 +14,10 @@
                 </div>
                 <div class="card-body p-5">
                     @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                        <div class="alert alert-success">{{ \App\Support\FlashMessage::render(session('success')) }}</div>
                     @endif
                     @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        <div class="alert alert-danger">{{ \App\Support\FlashMessage::render(session('error')) }}</div>
                     @endif
 
                     <form method="POST" action="{{ route('login.store') }}">

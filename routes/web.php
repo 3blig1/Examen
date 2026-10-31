@@ -79,6 +79,8 @@ Route::middleware('auth', 'admin')->prefix('admin')->name('admin.')->group(funct
     Route::delete('/registrations/{registration}', [AdminController::class, 'deleteRegistration'])->name('registrations.delete');
     
     Route::get('/exams/{exam}/results', [AdminController::class, 'enterResults'])->name('exams.results');
+    Route::get('/exams/{exam}/results/template', [AdminController::class, 'exportResultsTemplate'])->name('exams.results.template');
+    Route::post('/exams/{exam}/results/import', [AdminController::class, 'importResults'])->name('exams.results.import');
     Route::get('/exams/{exam}/results-view', [AdminController::class, 'examResults'])->name('exams.results-view');
     Route::get('/exams/{exam}/results/export/pdf', [AdminController::class, 'exportResultsPdf'])->name('exams.results.export-pdf');
     Route::get('/exams/{exam}/results/export/excel', [AdminController::class, 'exportResultsExcel'])->name('exams.results.export-excel');

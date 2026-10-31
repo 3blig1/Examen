@@ -13,6 +13,33 @@
         </div>
     </div>
 
+    @if(auth()->user()->isSuperAdmin())
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-file-import"></i> {{ __('messages.results_import_title') }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ __('messages.results_import_help') }}</p>
+            <p class="small text-muted">{{ __('messages.results_import_columns') }}</p>
+            <a href="{{ route('admin.exams.results.template', $exam) }}" class="btn btn-outline-primary mb-3">
+                <i class="fas fa-download"></i> {{ __('messages.results_download_template') }}
+            </a>
+            <form action="{{ route('admin.exams.results.import', $exam) }}" method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
+                @csrf
+                <div class="col-md-8">
+                    <label for="results_file" class="form-label">{{ __('messages.results_choose_file') }}</label>
+                    <input type="file" class="form-control" id="results_file" name="results_file" accept=".xlsx,.xls,.csv,.txt" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-upload"></i> {{ __('messages.results_import_button') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -30,15 +57,24 @@
                 </thead>
                 <tbody>
                     @forelse($registrations as $registration)
+                    @php
+                        $selectedModules = $registration->selected_modules ?: ['reading', 'listening', 'writing', 'speaking'];
+                        $moduleLabels = [
+                            'reading' => __('messages.reading_score_label'),
+                            'listening' => __('messages.listening_score_label'),
+                            'writing' => __('messages.writing_score_label'),
+                            'speaking' => __('messages.speaking_score_label'),
+                        ];
+                    @endphp
                     <tr>
                         <td>
                             <strong>{{ $registration->user->first_name }} {{ $registration->user->last_name }}</strong><br>
                             <small class="text-muted">{{ $registration->user->email }}</small>
                         </td>
-                        <td>{{ $registration->result?->reading_score ?? '-' }}</td>
-                        <td>{{ $registration->result?->listening_score ?? '-' }}</td>
-                        <td>{{ $registration->result?->writing_score ?? '-' }}</td>
-                        <td>{{ $registration->result?->speaking_score ?? '-' }}</td>
+                        <td>{{ in_array('reading', $selectedModules, true) ? ($registration->result?->reading_score ?? '-') : '-' }}</td>
+                        <td>{{ in_array('listening', $selectedModules, true) ? ($registration->result?->listening_score ?? '-') : '-' }}</td>
+                        <td>{{ in_array('writing', $selectedModules, true) ? ($registration->result?->writing_score ?? '-') : '-' }}</td>
+                        <td>{{ in_array('speaking', $selectedModules, true) ? ($registration->result?->speaking_score ?? '-') : '-' }}</td>
                         <td>{{ $registration->result?->level_achieved ?? '-' }}</td>
                         <td>
                             @if($registration->result)
@@ -68,37 +104,16 @@
                                     @csrf
                                     <div class="modal-body">
                                         <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="reading_{{ $registration->id }}" class="form-label">{{ __('messages.reading_score_label') }}</label>
-                                                       <input type="number" class="form-control" id="reading_{{ $registration->id }}" 
-                                                           name="reading_score" min="0" max="100" step="1" value="{{ $registration->result?->reading_score ?? 0 }}">
+                                            @foreach($selectedModules as $module)
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="{{ $module }}_{{ $registration->id }}" class="form-label">{{ $moduleLabels[$module] }}</label>
+                                                        <input type="number" class="form-control" id="{{ $module }}_{{ $registration->id }}"
+                                                               name="{{ $module }}_score" min="0" max="100" step="1"
+                                                               value="{{ $registration->result?->{$module . '_score'} ?? '' }}" required>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="listening_{{ $registration->id }}" class="form-label">{{ __('messages.listening_score_label') }}</label>
-                                                       <input type="number" class="form-control" id="listening_{{ $registration->id }}" 
-                                                           name="listening_score" min="0" max="100" step="1" value="{{ $registration->result?->listening_score ?? 0 }}">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="writing_{{ $registration->id }}" class="form-label">{{ __('messages.writing_score_label') }}</label>
-                                                       <input type="number" class="form-control" id="writing_{{ $registration->id }}" 
-                                                           name="writing_score" min="0" max="100" step="1" value="{{ $registration->result?->writing_score ?? 0 }}">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="speaking_{{ $registration->id }}" class="form-label">{{ __('messages.speaking_score_label') }}</label>
-                                                       <input type="number" class="form-control" id="speaking_{{ $registration->id }}" 
-                                                           name="speaking_score" min="0" max="100" step="1" value="{{ $registration->result?->speaking_score ?? 0 }}">
-                                                </div>
-                                            </div>
+                                            @endforeach
                                         </div>
 
                                         <div class="row">

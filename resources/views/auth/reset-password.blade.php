@@ -14,7 +14,7 @@
                 </div>
                 <div class="card-body p-5">
                     @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        <div class="alert alert-danger">{{ \App\Support\FlashMessage::render(session('error')) }}</div>
                     @endif
 
                     <form method="POST" action="{{ route('password.update') }}">
