@@ -525,7 +525,7 @@ return [
     'results_choose_file' => 'Excel- oder CSV-Datei',
     'results_import_button' => 'Noten importieren',
     'results_import_too_many_rows' => 'Die Datei überschreitet das Limit von 500 Zeilen.',
-    'results_import_missing_identity' => 'Zeile :row: Vorname, Nachname oder Geburtsdatum fehlt oder ist ungültig. Laden Sie die aktuelle Vorlage herunter und prüfen Sie die Spalten first_name, last_name und date_of_birth (Format JJJJ-MM-TT).',
+    'results_import_missing_identity' => 'Zeile :row: Identitätsfeld(er) fehlen oder sind ungültig: :fields. Prüfen Sie Vorname, Nachname und Geburtsdatum (gültige Formate: JJJJ-MM-TT, TT/MM/JJJJ oder TT.MM.JJJJ).',
     'results_import_duplicate_registration' => 'Zeile :row: Dieser Kandidat kommt mehrfach in der Datei vor.',
     'results_import_candidate_not_found' => 'Zeile :row: Für diese Prüfung wurde kein Kandidat mit diesem Vor- und Nachnamen sowie Geburtsdatum gefunden.',
     'results_import_ambiguous_candidate' => 'Zeile :row: Mehrere Kandidaten stimmen mit diesen Angaben überein. Import abgebrochen; bitte prüfen Sie die Daten mit der Verwaltung.',

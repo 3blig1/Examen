@@ -525,7 +525,7 @@ return [
     'results_choose_file' => 'Excel or CSV file',
     'results_import_button' => 'Import scores',
     'results_import_too_many_rows' => 'The file exceeds the 500-row limit.',
-    'results_import_missing_identity' => 'Row :row: first name, last name, or date of birth is missing or invalid. Download the current template and check the first_name, last_name, and date_of_birth columns (expected YYYY-MM-DD).',
+    'results_import_missing_identity' => 'Row :row: identity field(s) missing or invalid: :fields. Check first name, last name, and date of birth (accepted formats: YYYY-MM-DD, DD/MM/YYYY, or DD.MM.YYYY).',
     'results_import_duplicate_registration' => 'Row :row: this candidate appears more than once in the file.',
     'results_import_candidate_not_found' => 'Row :row: no candidate with this first name, last name, and date of birth was found for this exam.',
     'results_import_ambiguous_candidate' => 'Row :row: multiple candidates match this identity. Import cancelled; verify the data with an administrator.',

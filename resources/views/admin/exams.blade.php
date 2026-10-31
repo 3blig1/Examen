@@ -82,7 +82,7 @@
                         <td>
                             <span class="badge bg-info">{{ $exam->registered_count }} / {{ $exam->max_participants }}</span>
                         </td>
-                        <td>{{ number_format($exam->price, 2) }}€</td>
+                        <td>{{ number_format($exam->price, 0, ',', ' ') }} FCFA</td>
                         <td>
                             <span class="badge badge-status-{{ $exam->status }}">
                                 {{ __('messages.status_' . $exam->status) }}

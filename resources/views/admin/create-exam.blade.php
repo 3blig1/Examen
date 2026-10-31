@@ -137,9 +137,9 @@
                             </div>
 
                             <div class="col-md-6 mb-4">
-                                <label for="price" class="form-label">{{ __('messages.price') }} (€)</label>
+                                <label for="price" class="form-label">{{ __('messages.price') }} (FCFA)</label>
                                 <input type="number" class="form-control @error('price') is-invalid @enderror" 
-                                       id="price" name="price" value="{{ old('price', 0) }}" min="0" step="0.01" required>
+                                       id="price" name="price" value="{{ old('price', 0) }}" min="0" step="1" required>
                                 <small class="text-muted">{{ __('messages.price_complete_exam') }}</small>
                                 @error('price')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -149,9 +149,9 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label for="price_per_module" class="form-label">{{ __('messages.price_per_module') }} (€)</label>
+                                <label for="price_per_module" class="form-label">{{ __('messages.price_per_module') }} (FCFA)</label>
                                 <input type="number" class="form-control @error('price_per_module') is-invalid @enderror" 
-                                       id="price_per_module" name="price_per_module" value="{{ old('price_per_module', 0) }}" min="0" step="0.01">
+                                       id="price_per_module" name="price_per_module" value="{{ old('price_per_module', 0) }}" min="0" step="1">
                                 <small class="text-muted">{{ __('messages.price_per_module_hint') }}</small>
                                 @error('price_per_module')
                                     <div class="invalid-feedback">{{ $message }}</div>

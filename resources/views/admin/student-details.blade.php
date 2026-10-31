@@ -116,7 +116,7 @@
                     @foreach($payments as $payment)
                     <tr>
                         <td>{{ $payment->registration?->exam?->name ?? __('messages.not_available_short') }}</td>
-                        <td>{{ number_format($payment->amount, 2) }}€</td>
+                        <td>{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</td>
                         <td>{{ $payment->status === 'confirmed' ? __('messages.confirmed') : __('messages.pending') }}</td>
                         <td>{{ $payment->paid_at?->format('d/m/Y H:i') ?? __('messages.not_available_short') }}</td>
                     </tr>

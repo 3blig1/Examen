@@ -25,7 +25,7 @@
                                 <p style="margin:0 0 10px 0;font-size:15px;"><strong>{{ __('messages.email_exam_label') }}:</strong> {{ $exam->name }}</p>
                             @endif
                             @if(!empty($amount))
-                                <p style="margin:0 0 16px 0;font-size:15px;"><strong>{{ __('messages.email_amount_due_label') }}:</strong> {{ number_format($amount, 2, ',', ' ') }} €</p>
+                                <p style="margin:0 0 16px 0;font-size:15px;"><strong>{{ __('messages.email_amount_due_label') }}:</strong> {{ number_format($amount, 0, ',', ' ') }} FCFA</p>
                             @endif
 
                             @if(count($selectedModules) > 0)

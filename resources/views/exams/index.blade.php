@@ -32,8 +32,8 @@
                             {{ $exam->location ?? __('messages.location_to_be_defined') }}
                         </p>
                         <p class="mb-0">
-                            <i class="fas fa-euro-sign text-success"></i>
-                            <strong class="text-success">{{ number_format($exam->price, 2) }}€</strong>
+                            <i class="fas fa-money-bill-wave text-success"></i>
+                            <strong class="text-success">{{ number_format($exam->price, 0, ',', ' ') }} FCFA</strong>
                         </p>
                     </div>
 

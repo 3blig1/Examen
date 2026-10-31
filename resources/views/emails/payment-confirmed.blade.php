@@ -23,7 +23,7 @@
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0 20px 0;border:1px solid #e5e7eb;border-radius:8px;">
                                 <tr>
                                     <td style="padding:12px 16px;font-size:14px;">
-                                        <strong>{{ __('messages.email_amount_paid_label') }}:</strong> {{ number_format($registration->amount_paid ?? 0, 2, ',', ' ') }}
+                                        <strong>{{ __('messages.email_amount_paid_label') }}:</strong> {{ number_format($registration->amount_paid ?? 0, 0, ',', ' ') }} FCFA
                                     </td>
                                 </tr>
                                 <tr>

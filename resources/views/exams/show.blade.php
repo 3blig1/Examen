@@ -43,7 +43,7 @@
                         <div class="col-md-6">
                             <h6 class="text-muted">{{ __('messages.price') }}</h6>
                             <p class="fs-4 text-success">
-                                <strong>{{ number_format($exam->price, 2) }}€</strong>
+                                <strong>{{ number_format($exam->price, 0, ',', ' ') }} FCFA</strong>
                             </p>
                             <span class="badge {{ $exam->isAvailable() ? 'bg-success' : 'bg-danger' }}">
                                 {{ $exam->isAvailable() ? __('messages.registration_open') : __('messages.registration_closed') }}
@@ -139,7 +139,7 @@
                                                                     {{ __('messages.speaking_score') }}
                                                                     @break
                                                             @endswitch
-                                                            <span class="text-muted">({{ number_format($exam->price_per_module, 2) }}€)</span>
+                                                            <span class="text-muted">({{ number_format($exam->price_per_module, 0, ',', ' ') }} FCFA)</span>
                                                         </label>
                                                     </div>
                                                     @endif
@@ -165,7 +165,7 @@
                                     <div class="mb-4">
                                         <h6 class="text-muted">{{ __('messages.amount_to_pay') }}</h6>
                                         <p class="fs-4 text-success">
-                                            <strong id="totalPrice">{{ number_format($exam->exam_type === 'complete' ? $exam->price : 0, 2) }}€</strong>
+                                            <strong id="totalPrice">{{ number_format($exam->exam_type === 'complete' ? $exam->price : 0, 0, ',', ' ') }} FCFA</strong>
                                         </p>
                                     </div>
 
@@ -211,7 +211,7 @@
             const total = (count === totalModules && totalModules === 4)
                 ? fullExamPrice
                 : (count * pricePerModule);
-            totalPriceElement.textContent = total.toFixed(2) + '€';
+            totalPriceElement.textContent = Math.round(total).toLocaleString('fr-FR') + ' FCFA';
 
             // Enable/disable register button
             if (count > 0) {

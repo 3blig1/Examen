@@ -65,7 +65,7 @@
                     <tr>
                         <td>{{ $total->name }}</td>
                         <td>{{ \Carbon\Carbon::parse($total->date)->format('d/m/Y') }}</td>
-                        <td>{{ number_format($total->total_amount, 2) }}€</td>
+                        <td>{{ number_format($total->total_amount, 0, ',', ' ') }} FCFA</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -91,7 +91,7 @@
                     <tr>
                         <td>{{ $payment->user?->first_name }} {{ $payment->user?->last_name }}</td>
                         <td>{{ $payment->registration?->exam?->name ?? __('messages.not_available_short') }}</td>
-                        <td>{{ number_format($payment->amount, 2) }}€</td>
+                        <td>{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</td>
                         <td>
                             @if($payment->status === 'confirmed')
                                 {{ __('messages.confirmed') }}

@@ -140,8 +140,8 @@ class AdminController extends Controller
             'available_modules' => 'nullable|array',
             'available_modules.*' => 'in:reading,writing,listening,speaking',
             'max_participants' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'price_per_module' => 'nullable|numeric|min:0',
+            'price' => 'required|integer|min:0',
+            'price_per_module' => 'nullable|integer|min:0',
             'location' => 'nullable|string|max:255',
         ]);
 
@@ -178,8 +178,8 @@ class AdminController extends Controller
             'available_modules' => 'nullable|array',
             'available_modules.*' => 'in:reading,writing,listening,speaking',
             'max_participants' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'price_per_module' => 'nullable|numeric|min:0',
+            'price' => 'required|integer|min:0',
+            'price_per_module' => 'nullable|integer|min:0',
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:upcoming,ongoing,completed',
         ]);
@@ -754,8 +754,21 @@ class AdminController extends Controller
             $firstName = $this->normalizeCandidateName($row['first_name'] ?? null);
             $lastName = $this->normalizeCandidateName($row['last_name'] ?? null);
             $dateOfBirth = $this->normalizeCandidateBirthDate($row['date_of_birth'] ?? null);
-            if ($firstName === '' || $lastName === '' || $dateOfBirth === null) {
-                $errors[] = __('messages.results_import_missing_identity', ['row' => $rowNumber]);
+            $missingIdentityFields = [];
+            if ($firstName === '') {
+                $missingIdentityFields[] = 'first_name';
+            }
+            if ($lastName === '') {
+                $missingIdentityFields[] = 'last_name';
+            }
+            if ($dateOfBirth === null) {
+                $missingIdentityFields[] = 'date_of_birth';
+            }
+            if ($missingIdentityFields !== []) {
+                $errors[] = __('messages.results_import_missing_identity', [
+                    'row' => $rowNumber,
+                    'fields' => implode(', ', $missingIdentityFields),
+                ]);
                 continue;
             }
 
@@ -884,7 +897,7 @@ class AdminController extends Controller
             }
         }
 
-        foreach (['Y-m-d', 'd/m/Y', 'd-m-Y'] as $format) {
+        foreach (['Y-m-d', 'd/m/Y', 'd-m-Y', 'd.m.Y', 'Y/m/d', 'Y-m-d H:i:s', 'd/m/Y H:i:s', 'd.m.Y H:i:s'] as $format) {
             $date = \DateTimeImmutable::createFromFormat('!' . $format, $value);
             $errors = \DateTimeImmutable::getLastErrors();
             if ($date && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0))) {

@@ -525,7 +525,7 @@ return [
     'results_choose_file' => 'Fichier Excel ou CSV',
     'results_import_button' => 'Importer les notes',
     'results_import_too_many_rows' => 'Le fichier dépasse la limite de 500 lignes.',
-    'results_import_missing_identity' => 'Ligne :row : prénom, nom ou date de naissance manquant ou invalide. Téléchargez le modèle actuel et vérifiez les colonnes first_name, last_name et date_of_birth (format AAAA-MM-JJ).',
+    'results_import_missing_identity' => 'Ligne :row : champ(s) d’identité manquant(s) ou invalide(s) : :fields. Vérifiez le prénom, le nom et la date de naissance (formats acceptés : AAAA-MM-JJ, JJ/MM/AAAA ou JJ.MM.AAAA).',
     'results_import_duplicate_registration' => 'Ligne :row : ce candidat apparaît plusieurs fois dans le fichier.',
     'results_import_candidate_not_found' => 'Ligne :row : aucun candidat correspondant au prénom, au nom et à la date de naissance pour cet examen.',
     'results_import_ambiguous_candidate' => 'Ligne :row : plusieurs candidats correspondent à cette identité. Import annulé ; vérifiez les données auprès de l’administration.',
